@@ -1,0 +1,67 @@
+Git Enablement Server (GES)
+A collection of browser-based and server-side components allowing
+teams to start collaborating with very little set up, no specific
+OS limitations and very relaxed software infrastructure requirement.
+
+About the project:
+===============================================
+Why:
+
+Aspirational slogan for the project is:
+Maximum platforms. Minimum excuses. Maximum simplicity. 
+GES - This is how you say Yes to Git.
+
+Preferred set up method:
+Double-click, or as close to it as possible.
+
+At this time, there is no git server package available that can provide
+easy to set up, platform / server agnostic, rich client experience
+for private single or team-based development. A number of conventions,
+like historical preference for *nix-like OS and dependence on SSH make
+current offering inflexible for some distributed development scenarios.
+
+At this (starting) stage of its life the project is aspiring to provide
+a simple git server featuring Git Smart HTTP protocol support (read this
+as "no SSH needed to interoperate with the server"), with basic 
+web-based UI, simplest rights management and target on single empowered
+or small workgroup users.
+
+A loose comparison to this project would be a combination of (CGI-based) 
+git-http-backend server distributed with git and a cgit or gitweb interface.
+That combination is the base-line functionality approximation. The upper-line
+functionality limit is GitHubs and Gitorious of the world. This project aims
+to be somewhere in between these two.
+
+How:
+
+In order to reach the optimal platform flexibility for both, the server and
+the "client" components, at this time the project targets WSGI (Web Server
+Gateway Interface)-compatible server platforms and consists of the
+following components:
+- git_http_backend.py - WSGI-compatible implementation of Git Smart HTTP server.
+- sammy - JavaScript-based MVC toolkit allowing us to create and incredibly
+  rich client-size experience while being completely free from tie-in to any
+  server-size scripting technology.
+- thin WSGI-based JSON-RPC server layer feeding data to sammy-based web client.
+
+Dependencies
+========================
+* Python 2.6 (Developed against 2.6, 2.5+ might work, but never tested.)
+* Git >= 1.6.6 (On the server and on the client side.)
+* WSGI-compatible server, expressly supporting WSGI 1.1 or covertly
+  converting HTTP/1.1-style Chunked bodies to WSGI 1.0-compatible 
+  "sized" wsgi.input streams.
+  Alternatively, a WSGI 1.0 compatible server that sits behind a reverse
+  proxy which converts HTTP/1.1 Chunked bodies into HTTP/1.0 sized bodies.
+
+Installation
+========================
+See Examples folder.
+
+License
+========================
+See file named COPYING for license terms governing over the entire 
+project. 
+
+(Some, explicitly-labeled so constituent files/works are licensed under
+separate, more-permissive terms. See disclaimers at the start of the files for details.)

@@ -1,0 +1,6 @@
+[submodule "git_http_backend"]
+	path = git_http_backend
+	url = git://github.com/dvdotsenko/git_http_backend.py.git
+[submodule "sammymvc"]
+	path = sammymvc
+	url = git://github.com/quirkey/sammy.git
