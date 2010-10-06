@@ -4,3 +4,6 @@
 [submodule "sammymvc"]
 	path = sammymvc
 	url = git://github.com/quirkey/sammy.git
+[submodule "gitpython"]
+	path = gitpython
+	url = git://gitorious.org/git-python/mainline.git
