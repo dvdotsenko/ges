@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>GES</title>
+  <style type="text/css" media="screen">
+  </style>
+  <script src="scripts/jquery.js" type="text/javascript"></script>
+  <script src="scripts/sammy/sammy-0.6.1.min.js" type="text/javascript"></script>
+  <script src="scripts/jquery.tmpl.js" type="text/javascript"></script>
+  <script src="scripts/ges.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <div>This will always be there.</div>
+  <div id="container">
+    <ul id="link">
+      <li><a href="#/">reset!</a></li>
+      <li><a href="#/templatetest">People!</a></li>
+    </ul>
+    <div id="main"> </div>
+  </div>
+</body>
+    
+<script id="templateone" type="text/x-jquery-tmpl">
+<div class="comments">
+  <h3>{{= name}}</h3>
+  <ul>{{each(i, comment) comments}}
+    <li class="comment">
+    <span>{{= comment.name}}</span>
+    <span>{{= comment.body}}</span>
+    </li>
+  {{/each}}</ul>
+</div>
+</script>
+</html>
