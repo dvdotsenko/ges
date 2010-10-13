@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Copyright (c) 2010  Daniel Dotsenko <dotsa@hotmail.com>
+Copyright (c) 2010  Daniel Dotsenko <dotsa (a) hotmail com>
 
 This file is part of ges Project.
 
@@ -28,7 +28,7 @@ sys.path.append(os.path.join(path, 'gitpython', 'lib'))
 
 import git_http_backend
 from cherrypy import wsgiserver
-from jsonrpc import jsonrpc_handler_router
+from jsonrpc import jsonrpc_handler_router as jrpc
 
 # we are using a custom version of subprocess.Popen - PopenIO 
 # with communicateIO() method that starts reading into mem

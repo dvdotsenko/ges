@@ -1,36 +1,137 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>GES</title>
-  <style type="text/css" media="screen">
-  </style>
-  <script src="scripts/jquery.js" type="text/javascript"></script>
-  <script src="scripts/sammy/sammy-0.6.1.min.js" type="text/javascript"></script>
-  <script src="scripts/jquery.tmpl.js" type="text/javascript"></script>
-  <script src="scripts/ges.js" type="text/javascript"></script>
-</head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
 
+Name       : Anther  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20090820
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>G.E.S. Example</title>
+    <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+    <script src="scripts/jquery.js" type="text/javascript"></script>
+    <script src="scripts/sammy/sammy-0.6.1.min.js" type="text/javascript"></script>
+    <script src="scripts/jquery.tmpl.js" type="text/javascript"></script>
+    <script src="scripts/ges.js" type="text/javascript"></script>
+</head>
 <body>
-  <div>This will always be there.</div>
-  <div id="container">
-    <ul id="link">
-      <li><a href="#/">reset!</a></li>
-      <li><a href="#/templatetest">People!</a></li>
-    </ul>
-    <div id="main"> </div>
-  </div>
-</body>
-    
-<script id="templateone" type="text/x-jquery-tmpl">
-<div class="comments">
-  <h3>{{= name}}</h3>
-  <ul>{{each(i, comment) comments}}
-    <li class="comment">
-    <span>{{= comment.name}}</span>
-    <span>{{= comment.body}}</span>
-    </li>
-  {{/each}}</ul>
+<div id="wrapper">
+	<div id="header-wrapper">
+	<div id="header">
+		<div id="logo">
+			<h1><a href="#">Example</a></h1>
+			<p>Showing off <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a>.</p>
+		</div>
+	</div>
+	</div>
+	<!-- end #header -->
+	<div id="menu">
+		<ul>
+			<li class="current_page_item"><a href="#/">Dashboard</a></li>
+			<li><a href="#/repos">Repos</a></li>
+<!--			<li><a href="#/chatter">Chatter</a></li>-->
+			<li><a href="#/about">About</a></li>
+		</ul>
+	</div>
+	<!-- end #menu -->
+	<div id="page">
+	<div id="page-bgtop">
+	<div id="page-bgbtm">
+		<div id="content">
+            <div id="dynamic">
+                <div id="dashboard" class="post">
+                    <h2 class="title">Welcome to <strong>Git Enablement Server</strong> Example</h2>
+                    <div class="entry">
+                        <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
+                        <p><a href="#/repos" class="links">View available Git repositories ></a> </p>
+                        <p><a href="#/about" class="links">Read more about this server and dev team ></a> </p>
+                    </div>
+                </div>
+            </div>
+            <script id="dashboard_tmpl" type="text/x-jquery-tmpl">
+                <div id="dashboard" class="post">
+                    <h2 class="title">Welcome to <strong>Git Enablement Server</strong> Example</h2>
+    <!--				<p class="meta">Posted by <a href="#">Someone</a> on March 10, 2008
+                        &nbsp;&bull;&nbsp; <a href="#" class="comments">Comments (64)</a> &nbsp;&bull;&nbsp; <a href="#" class="permalink">Full article</a></p>-->
+                    <div class="entry">
+                        <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
+                        <p><a href="#/repos" class="links">View available Git repositories ></a> </p>
+                        <p><a href="#/about" class="links">Read more about this server and dev team ></a> </p>
+                    </div>
+                </div>
+            </script>
+            <script id="repo_browser_tmpl" type="text/x-jquery-tmpl">
+                <div id="repo_browser" class="post">
+                    <h2 class="title">{{= title}}</h2>
+                    <p class="meta">Last updated on {{= date}}</p>
+                    <div class="entry">
+                        {{each(i, paragraph) paragraphs}}
+                        <p>{{= paragraph}}</p>
+                        {{/each}}
+                        {{each(i, link) links}}
+                        <p><a href="{{= link.uri}}" class="links">{{= link.label}}</a></p>
+                        {{/each}}
+                    </div>
+                </div>
+            </script>
+            <script id="about_tmpl" type="text/x-jquery-tmpl">
+                <div id="about" class="post">
+                    <h2 class="title">About this server</h2>
+                    <div class="entry">
+                        <p>This is the "stock" G.E.S. v1.0 server instance.</p>
+                        <p>Visit <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> development home page for usage and installation instructions.</p>
+                    </div>
+                </div>
+            </script>
+<!--
+			<div class="post">
+				<h2 class="title"><a href="#">Phasellus pellentesque turpis </a></h2>
+				<p class="meta">Posted by <a href="#">Someone</a> on March 8, 2008
+					&nbsp;&bull;&nbsp; <a href="#" class="comments">Comments (64)</a> &nbsp;&bull;&nbsp; <a href="#" class="permalink">Full article</a></p>
+				<div class="entry">
+					<p>Sed lacus. Donec lectus.</p>
+					<p><a href="#" class="links">Read More</a> </p>
+				</div>
+			</div>
+-->
+		<div style="clear: both;">&nbsp;</div>
+		</div>
+		<!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>What is this?</h2>
+					<p>This is a <a href="http://github.com/dvdotsenko/ges">G.E.S.</a>-based micro-server hosting Git repositories maintained by an example team.</p>
+				</li>
+				<li>
+					<h2>What's next?</h2>
+					<ul>
+						<li><a href="#/repos">View available repositories ></a></li>
+						<li><a href="#/about">Learn about the server ></a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	</div>
+	</div>
+	<!-- end #page -->
 </div>
-</script>
+<div id="footer-wrapper">
+	<div id="footer">
+		<p>Copyright (c) 2010 Git Enablement Server project. All rights reserved. Original theme "Anther" designed by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	</div>
+	<!-- end #footer -->
+</div>
+</body>
 </html>

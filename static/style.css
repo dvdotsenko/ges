@@ -63,16 +63,16 @@ a:hover {
 
 #header {
 	width: 960px;
-	height: 160px;
+	height: 137px;
 	margin: 0 auto;
-	background: url(images/img03.png) no-repeat right bottom;
+	background: url(images/header.png) no-repeat right bottom;
 }
 
 /* Logo */
 
 #logo {
 	float: left;
-	height: 160px;
+	height: 137px;
 	margin: 0;
 	padding: 0px;
 	color: #FFFFFF;
@@ -84,10 +84,10 @@ a:hover {
 }
 
 #logo h1 {
-    padding-top: 63px;
+    padding-top: 40px;
     padding-left: 10px;
     letter-spacing: -1px;
-    font-size: 3.8em;
+    font-size: 3em;
     color: #0B5A84;
 }
 
