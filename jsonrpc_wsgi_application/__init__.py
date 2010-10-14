@@ -1,0 +1,1 @@
+from jsonrpc_wsgi_application import *

@@ -2,20 +2,20 @@
 '''
 Copyright (c) 2010  Daniel Dotsenko <dotsa (a) hotmail com>
 
-This file is part of ges Project.
+This file is part of Git Enablement Server Project.
 
-ges Project is free software: you can redistribute it and/or modify
+Git Enablement Server Project is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
 (at your option) any later version.
 
-ges Project is distributed in the hope that it will be useful,
+Git Enablement Server Project is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with ges Project.  If not, see <http://www.gnu.org/licenses/>.
+along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import io
 import os
@@ -28,7 +28,8 @@ sys.path.append(os.path.join(path, 'gitpython', 'lib'))
 
 import git_http_backend
 from cherrypy import wsgiserver
-from jsonrpc import jsonrpc_handler_router as jrpc
+import jsonrpc_wsgi_application as jrpc
+import ges_rpc_methods
 
 # we are using a custom version of subprocess.Popen - PopenIO 
 # with communicateIO() method that starts reading into mem
@@ -73,48 +74,36 @@ def assemble_ges_app(path_prefix = '.', repo_uri_marker = '', performance_settin
     settings = {"path_prefix": path_prefix.decode('utf8')}
     settings.update(performance_settings)
 
-    selector = git_http_backend.WSGIHandlerSelector()
-    # generic_handler = git_http_backend.StaticWSGIServer(**settings)
+    # assembling JSONRPC WSGI app
+    _methods_list = ges_rpc_methods.assemble_methods_list(
+        path_prefix = 'c:\\tmp\\reposbase',
+        uri_marker = '',
+        settings = {}
+        )
+    _jsonrpc_app = jrpc.WSGIJSONRPCApplication()
+    for path, method_pointer in _methods_list:
+        _jsonrpc_app.add_method(path, method_pointer)
+
+    # assembling static file server WSGI app
+    _static_server_app = git_http_backend.StaticWSGIServer(path_prefix = r'C:\Users\ddotsenko\Desktop\Work\Projects\git_http_backend\ges\src\static')
 
     if repo_uri_marker:
         marker_regex = r'(?P<decorative_path>.*?)(?:/'+ repo_uri_marker + ')'
     else:
         marker_regex = ''
-
+    selector = git_http_backend.WSGIHandlerSelector()
     selector.add(
         marker_regex + r'/showvars',
         ShowVarsWSGIApp()
         )
-    static_server = git_http_backend.StaticWSGIServer(path_prefix = r'C:\Users\ddotsenko\Desktop\Work\Projects\git_http_backend\ges\src\sammymvc')
+    selector.add(
+        marker_regex + r'/rpc[/]*$',
+        _jsonrpc_app)
     selector.add(
         marker_regex + r'/static/(?P<working_path>.*)$',
-        GET = static_server,
-        HEAD = static_server)
-    selector.add(
-        marker_regex + r'(?P<working_path>.*)$',
-        GET = TestingGitPython(),
-        HEAD = TestingGitPython())
+        GET = _static_server_app,
+        HEAD = _static_server_app)
     return selector
-
-import git.utils
-class TestingGitPython(object):
-    def __init__(self, *args, **kw):
-        path = r'C:\tmp\repotest'
-        dirs = []
-        for name in os.listdir(path):
-            if os.path.isdir(os.path.join(path, name)): # and not name.startswith('.'):
-                dirs.append(name)
-            self.l = dict( ( (dn, git.utils.is_git_dir(os.path.join(path,dn))) for dn in dirs ) )
-
-    def __call__(self, environ, start_response):
-        status = '200 OK'
-        response_headers = [('Content-type','text/plain')]
-        start_response(status, response_headers)
-        yield "TESTING GIT-PYTHON\n\n"
-#        for key in sorted(environ.keys()):
-#            yield '%s = %s\n' % (key, unicode(environ[key]).encode('utf8'))
-        for key, value in self.l.items():
-            yield key + ' ' + str(value) + '\n'
 
 class ShowVarsWSGIApp(object):
     def __init__(self, *args, **kw):
