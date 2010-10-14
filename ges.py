@@ -100,6 +100,10 @@ def assemble_ges_app(path_prefix = '.', repo_uri_marker = '', performance_settin
         marker_regex + r'/rpc[/]*$',
         _jsonrpc_app)
     selector.add(
+        marker_regex + r'/favicon.ico$',
+        GET = _static_server_app,
+        HEAD = _static_server_app)
+    selector.add(
         marker_regex + r'/static/(?P<working_path>.*)$',
         GET = _static_server_app,
         HEAD = _static_server_app)

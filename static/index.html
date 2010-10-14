@@ -20,6 +20,7 @@ Released   : 20090820
     <script src="scripts/jquery.js" type="text/javascript"></script>
     <script src="scripts/sammy/sammy-0.6.1.min.js" type="text/javascript"></script>
     <script src="scripts/jquery.tmpl.js" type="text/javascript"></script>
+    <script src="scripts/jquery.jsonrpc.js" type="text/javascript"></script>
     <script src="scripts/ges.js" type="text/javascript"></script>
 </head>
 <body>
@@ -27,7 +28,7 @@ Released   : 20090820
 	<div id="header-wrapper">
 	<div id="header">
 		<div id="logo">
-			<h1><a href="#">Example</a></h1>
+			<h1><a href="#/">Example</a></h1>
 			<p>Showing off <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a>.</p>
 		</div>
 	</div>
@@ -36,7 +37,7 @@ Released   : 20090820
 	<div id="menu">
 		<ul>
 			<li class="current_page_item"><a href="#/">Dashboard</a></li>
-			<li><a href="#/repos">Repos</a></li>
+			<li><a href="#/browse">Browse</a></li>
 <!--			<li><a href="#/chatter">Chatter</a></li>-->
 			<li><a href="#/about">About</a></li>
 		</ul>
@@ -51,7 +52,7 @@ Released   : 20090820
                     <h2 class="title">Welcome to <strong>Git Enablement Server</strong> Example</h2>
                     <div class="entry">
                         <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
-                        <p><a href="#/repos" class="links">View available Git repositories ></a> </p>
+                        <p><a href="#/browse" class="links">View available Git repositories ></a> </p>
                         <p><a href="#/about" class="links">Read more about this server and dev team ></a> </p>
                     </div>
                 </div>
@@ -63,22 +64,43 @@ Released   : 20090820
                         &nbsp;&bull;&nbsp; <a href="#" class="comments">Comments (64)</a> &nbsp;&bull;&nbsp; <a href="#" class="permalink">Full article</a></p>-->
                     <div class="entry">
                         <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
-                        <p><a href="#/repos" class="links">View available Git repositories ></a> </p>
+                        <p><a href="#/browse" class="links">View available Git repositories ></a> </p>
                         <p><a href="#/about" class="links">Read more about this server and dev team ></a> </p>
                     </div>
                 </div>
             </script>
-            <script id="repo_browser_tmpl" type="text/x-jquery-tmpl">
+            <script id="repo_browser_base_tmpl" type="text/x-jquery-tmpl">
                 <div id="repo_browser" class="post">
-                    <h2 class="title">{{= title}}</h2>
-                    <p class="meta">Last updated on {{= date}}</p>
-                    <div class="entry">
-                        {{each(i, paragraph) paragraphs}}
-                        <p>{{= paragraph}}</p>
-                        {{/each}}
-                        {{each(i, link) links}}
-                        <p><a href="{{= link.uri}}" class="links">{{= link.label}}</a></p>
-                        {{/each}}
+                    <h2 class="title">Browse Folders</h2>
+                    <div id="repo_browser_content" class="entry">
+                    </div>
+                </div>
+            </script>
+            <script id="repo_browser_content_tmpl" type="text/x-jquery-tmpl">
+                <div class="browser_content">
+<!--                    <p class="meta">Last updated on {{= date}}</p>-->
+                    <div class="dir_address">
+                    <span class="dir_address_start">
+                    <a href="#/browse/">Browse</a>
+                    </span>
+                    {{each(i,section) path_sections}}
+                    <span class="dir_address_link">
+                    <a href="#/browse/{{= section[1]}}">{{= section[0]}}</a>
+                    </span>
+                    {{/each}}
+                    <strong>:</strong></div>
+                    <div>
+                    {{each(i,dir) dirs}}
+                    {{if dir.is_git_dir}}
+                        <span class="browser_dir_list_item git_dir_decor">
+                            <a href="#/browse/{{= path + '/' + dir.name}}">{{= dir.name}}</a>
+                        </span>
+                    {{else}}
+                        <span class="browser_dir_list_item dir_decor">
+                            <a href="#/browse/{{= path + '/' + dir.name}}">{{= dir.name}}</a>
+                        </span>
+                    {{/if}}
+                    {{/each}}
                     </div>
                 </div>
             </script>
@@ -114,7 +136,7 @@ Released   : 20090820
 				<li>
 					<h2>What's next?</h2>
 					<ul>
-						<li><a href="#/repos">View available repositories ></a></li>
+						<li><a href="#/browse">View available repositories ></a></li>
 						<li><a href="#/about">Learn about the server ></a></li>
 					</ul>
 				</li>

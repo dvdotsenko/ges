@@ -255,6 +255,7 @@ a:hover {
 	float: left;
 	width: 230px;
     padding-left: 10px;
+    margin-top: 30px;
 }
 
 #sidebar ul {
@@ -352,4 +353,49 @@ a:hover {
 
 #footer a {
 	color: #5991C7;
+}
+
+#repo_browser a:hover {
+	text-decoration: underline;
+}
+
+.dir_address {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.dir_address_link {
+    background: url(images/sep.png) no-repeat left center;
+    padding-left: 7px;
+    text-transform: capitalize;
+}
+
+.dir_address_start{
+    background: url(images/start-here.png) no-repeat left center;
+    padding-left: 7px;
+    text-transform: capitalize;
+}
+
+.browser_dir_list_item {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.dir_decor {
+/*    margin-left: 16px;*/
+    background: url(images/folder.png) no-repeat left center;
+    padding-left: 10px;
+    text-transform: capitalize;
+}
+
+.git_dir_decor {
+/*    margin-left: 16px;*/
+    background: url(images/git.png) no-repeat left center;
+    padding-left: 10px;
+    font-weight: bold;
+    text-transform: capitalize;
 }
