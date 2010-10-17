@@ -363,7 +363,7 @@ a:hover {
     padding-top: 0.2em;
     padding-bottom: 0.2em;
     margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
 }
 
 .dir_address_link {
@@ -390,6 +390,12 @@ a:hover {
     background: url(images/folder.png) no-repeat left center;
     padding-left: 10px;
     text-transform: capitalize;
+}
+
+.dir_nothing {
+/*    margin-left: 16px;*/
+    margin-left: 20px;
+    font-style: italic;
 }
 
 .git_dir_decor {

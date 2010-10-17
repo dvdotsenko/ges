@@ -36,10 +36,10 @@ Released   : 20090820
 	<!-- end #header -->
 	<div id="menu">
 		<ul>
-			<li class="current_page_item"><a href="#/">Dashboard</a></li>
-			<li><a href="#/browse">Browse</a></li>
+			<li class="current_page_item"><a href="#/dashboard/">Dashboard</a></li>
+			<li><a href="#/">Browse folders</a></li>
 <!--			<li><a href="#/chatter">Chatter</a></li>-->
-			<li><a href="#/about">About</a></li>
+			<li><a href="#/about/">About</a></li>
 		</ul>
 	</div>
 	<!-- end #menu -->
@@ -52,8 +52,8 @@ Released   : 20090820
                     <h2 class="title">Welcome to <strong>Git Enablement Server</strong> Example</h2>
                     <div class="entry">
                         <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
-                        <p><a href="#/browse" class="links">View available Git repositories ></a> </p>
-                        <p><a href="#/about" class="links">Read more about this server and dev team ></a> </p>
+                        <p><a href="#/" class="links">View available Git repositories ></a> </p>
+                        <p><a href="#/about/" class="links">Read more about this server and dev team ></a> </p>
                     </div>
                 </div>
             </div>
@@ -64,8 +64,8 @@ Released   : 20090820
                         &nbsp;&bull;&nbsp; <a href="#" class="comments">Comments (64)</a> &nbsp;&bull;&nbsp; <a href="#" class="permalink">Full article</a></p>-->
                     <div class="entry">
                         <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
-                        <p><a href="#/browse" class="links">View available Git repositories ></a> </p>
-                        <p><a href="#/about" class="links">Read more about this server and dev team ></a> </p>
+                        <p><a href="#/" class="links">View available Git repositories ></a> </p>
+                        <p><a href="#/about/" class="links">Read more about this server and dev team ></a> </p>
                     </div>
                 </div>
             </script>
@@ -73,35 +73,39 @@ Released   : 20090820
                 <div id="repo_browser" class="post">
                     <h2 class="title">Browse Folders</h2>
                     <div id="repo_browser_content" class="entry">
+                        Loading content...
                     </div>
                 </div>
             </script>
             <script id="repo_browser_content_tmpl" type="text/x-jquery-tmpl">
                 <div class="browser_content">
-<!--                    <p class="meta">Last updated on {{= date}}</p>-->
                     <div class="dir_address">
-                    <span class="dir_address_start">
-                    <a href="#/browse/">Browse</a>
-                    </span>
                     {{each(i,section) path_sections}}
                     <span class="dir_address_link">
-                    <a href="#/browse/{{= section[1]}}">{{= section[0]}}</a>
+                    <a href="#{{= section[1]}}">{{= section[0]}}</a>
                     </span>
                     {{/each}}
+                    <span class="dir_address_link">{{= path_last_section}}</span>
                     <strong>:</strong></div>
                     <div>
                     {{each(i,dir) dirs}}
                     {{if dir.is_git_dir}}
                         <span class="browser_dir_list_item git_dir_decor">
-                            <a href="#/browse/{{= path + '/' + dir.name}}">{{= dir.name}}</a>
+                            <a href="#{{= path + dir.name}}">{{= dir.name}}</a>
                         </span>
                     {{else}}
                         <span class="browser_dir_list_item dir_decor">
-                            <a href="#/browse/{{= path + '/' + dir.name}}">{{= dir.name}}</a>
+                            <a href="#{{= path + dir.name}}">{{= dir.name}}</a>
                         </span>
                     {{/if}}
                     {{/each}}
+                    {{if (!dirs.length)}}
+                        <span class="browser_dir_list_item dir_nothing">Folder is empty.</span>
+                    {{/if}}
                     </div>
+                    {{if record_time}}
+                    <div><p/><p class="meta">Cached data. Updated {{= Math.round(((new Date()).getTime() - record_time)/600)/100 }} minutes ago. Click browser's reload button (or CTRL+R) to refresh the cache.</p></div>
+                    {{/if}}
                 </div>
             </script>
             <script id="about_tmpl" type="text/x-jquery-tmpl">
@@ -113,17 +117,6 @@ Released   : 20090820
                     </div>
                 </div>
             </script>
-<!--
-			<div class="post">
-				<h2 class="title"><a href="#">Phasellus pellentesque turpis </a></h2>
-				<p class="meta">Posted by <a href="#">Someone</a> on March 8, 2008
-					&nbsp;&bull;&nbsp; <a href="#" class="comments">Comments (64)</a> &nbsp;&bull;&nbsp; <a href="#" class="permalink">Full article</a></p>
-				<div class="entry">
-					<p>Sed lacus. Donec lectus.</p>
-					<p><a href="#" class="links">Read More</a> </p>
-				</div>
-			</div>
--->
 		<div style="clear: both;">&nbsp;</div>
 		</div>
 		<!-- end #content -->
@@ -136,8 +129,8 @@ Released   : 20090820
 				<li>
 					<h2>What's next?</h2>
 					<ul>
-						<li><a href="#/browse">View available repositories ></a></li>
-						<li><a href="#/about">Learn about the server ></a></li>
+						<li><a href="#/">View available repositories ></a></li>
+						<li><a href="#/about/">Learn about the server ></a></li>
 					</ul>
 				</li>
 			</ul>

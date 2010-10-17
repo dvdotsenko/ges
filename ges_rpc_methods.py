@@ -51,7 +51,11 @@ class browser_rpc(object):
 
         @returns relative_path Sanitized relative path string.
         '''
-        if type(relative_path) not in (bytes, str, type('')):
+        try:
+            _u = unicode
+        except:
+            _u = str
+        if type(relative_path) not in (bytes, str, type(''),_u):
             raise PathUnfitError('Path argument is not of right type.')
         _full_path = os.path.abspath(os.path.join(
             self.base_path,
@@ -95,7 +99,7 @@ class browser_rpc(object):
                     dirs.append({
                         "name":name
                         })
-        path = path[self.base_path_len:].replace(os.sep, '/').strip('/')
+        path = path[self.base_path_len:].replace(os.sep, '/') #.strip('/')
         return {'path':path, 'dirs':dirs}
 
 def assemble_methods_list(path_prefix, uri_marker = '', settings = {}):
