@@ -103,8 +103,9 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
 
     preset = '{"id":"%s", "method":"%s", "params":["%s"]}'
 
-    def _start_response(self, *args, **kw):
-        pass
+    def _start_response(self, code, headers):
+        if not code == "200 OK":
+            raise Exception('RPC call returned HTTP error: %s' % code)
 
     def _string_from_iterator(self, obj):
         return ''.join(obj)
@@ -123,6 +124,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO(self.preset % (1, "good_method", "sample text"))
                     },
                     self._start_response)
@@ -136,6 +138,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO(self.preset % (1, "namespace.nested_method", "sample text"))
                     },
                     self._start_response)
@@ -147,6 +150,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO(self.preset % (1, "namespace.deeperspace.nested_method", "sample text"))
                     },
                     self._start_response)
@@ -159,6 +163,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO(self.preset % (1, "bad_method", "sample text"))
                     },
                     self._start_response)
@@ -175,6 +180,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO(self.preset % (1, "should_not_be_there", "sample text"))
                     },
                     self._start_response)
@@ -191,6 +197,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO('{"id":"1"}')
                     },
                     self._start_response)
@@ -207,6 +214,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO('{"id":"1", "method":"not_there", "params":null}')
                     },
                     self._start_response)
@@ -223,6 +231,7 @@ class test_WSGIJSONRPCApplication(unittest.TestCase):
                 ''.join(self.h(
                     {
                         'wsgi.version': (1,1),
+                        'REQUEST_METHOD': 'POST',
                         'wsgi.input': io.BytesIO('this is not JSON')
                     },
                     self._start_response)
