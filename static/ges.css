@@ -1,0 +1,89 @@
+
+#dynamic {
+    padding-bottom: 0.5em;
+}
+/*#browse_base {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}*/
+#browse_base a:hover {
+	text-decoration: underline;
+}
+#browse_content {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+.path_crumbs {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.path_crumb {
+    background: url(images/sep.png) no-repeat left center;
+    padding-left: 7px;
+    text-transform: capitalize;
+}
+
+.folder_list_item_inline {
+    display: inline;
+}
+
+.folder_list_item_block {
+    display: block;
+}
+
+.folder_list_item_label {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+.folder_decor {
+    background: url(images/folder.png) no-repeat left center;
+}
+.submodule_decor {
+    background: url(images/folder.png) no-repeat left center;
+}
+.file_decor {
+    background: url(images/file.png) no-repeat left center;
+}
+.unknown_decor {
+    font-style: italic;
+}
+.repofolder_git_decor {
+    background: url(images/git.png) no-repeat left center;
+    font-weight: bold;
+}
+
+.repo_endpoints_table th {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+.repo_endpoints_table td {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.has_hoverable a span {
+    display: none;
+}
+
+.has_hoverable a:hover span {
+    display: block;
+    position: absolute;
+    padding: 0.5em;
+    margin-left: 5em;
+    z-index: 100;
+    color: black;
+    background: white;
+    border-style: solid;
+    border-color: gray;
+    border-width: thin;
+    font: 0.7em Verdana, sans-serif;
+    text-align: center;
+}
+
+#filelister_content {
+    line-height: 150%;
+}
+
