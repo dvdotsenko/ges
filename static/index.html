@@ -1,152 +1,144 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!--
-Design by Free CSS Templates
-http://www.freecsstemplates.org
-Released for free under a Creative Commons Attribution 2.5 License
-
-Name       : Anther  
-Description: A two-column, fixed-width design with dark color scheme.
-Version    : 1.0
-Released   : 20090820
-
--->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>G.E.S. Example</title>
-    <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+    <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link href="ges.css" rel="stylesheet" type="text/css" media="screen" />
     <script src="scripts/jquery.js" type="text/javascript"></script>
-    <script src="scripts/sammy/sammy-0.6.1.min.js" type="text/javascript"></script>
+    <script src="scripts/sammy/sammy-0.6.2.min.js" type="text/javascript"></script>
     <script src="scripts/jquery.tmpl.js" type="text/javascript"></script>
     <script src="scripts/jquery.jsonrpc.js" type="text/javascript"></script>
     <script src="scripts/ges.js" type="text/javascript"></script>
 </head>
 <body>
-<div id="wrapper">
-	<div id="header-wrapper">
-	<div id="header">
-		<div id="logo">
-			<h1><a href="#/">Example</a></h1>
-			<p>Showing off <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a>.</p>
-		</div>
-	</div>
-	</div>
-	<!-- end #header -->
-	<div id="menu">
-		<ul>
-			<li class="current_page_item"><a href="#/dashboard/">Dashboard</a></li>
-			<li><a href="#/">Browse folders</a></li>
-<!--			<li><a href="#/chatter">Chatter</a></li>-->
-			<li><a href="#/about/">About</a></li>
-		</ul>
-	</div>
-	<!-- end #menu -->
-	<div id="page">
-	<div id="page-bgtop">
-	<div id="page-bgbtm">
-		<div id="content">
-            <div id="dynamic">
-                <div id="dashboard" class="post">
-                    <h2 class="title">Welcome to <strong>Git Enablement Server</strong> Example</h2>
-                    <div class="entry">
-                        <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
-                        <p><a href="#/" class="links">View available Git repositories ></a> </p>
-                        <p><a href="#/about/" class="links">Read more about this server and dev team ></a> </p>
-                    </div>
+<div id="container">
+    <div id="header">
+        <h1>G.E.S. Example</h1>
+        <h3>Showing off Git Enablement Server</h3><br />
+    </div>
+    <div id="main">
+        <div id="dynamic">
+            <h2>Welcome to <strong>Git Enablement Server</strong> Example</h2>
+            <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
+            <p><a href="#browse/" class="links">View available Git repositories</a> </p>
+            <p><a href="#about/" class="links">Read more about this server and dev team</a></p>
+        </div>
+    </div>
+    <div id="menu">
+        <div class="threecol_left">
+            <div class="centered">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="#dashboard/">Dashboard</a></li>
+                <li><a href="#browse/">Browse&nbsp;Content</a></li>
+                <li><a href="#about/">About</a></li>
+            </ul>
+            &nbsp;
+            </div>
+        </div>
+        <div class="threecol_66">
+            <div class="threecol_middle">
+                <div class="centered">
+                <h2>What is this?</h2>
+                <p>This&nbsp;is&nbsp;a&nbsp;<a href="http://github.com/dvdotsenko/ges">G.E.S.</a>-based<br />micro-server&nbsp;hosting&nbsp;Git<br />repositories&nbsp;maintained<br />by&nbsp;an&nbsp;example&nbsp;team.</p>
                 </div>
             </div>
-            <script id="dashboard_tmpl" type="text/x-jquery-tmpl">
-                <div id="dashboard" class="post">
-                    <h2 class="title">Welcome to <strong>Git Enablement Server</strong> Example</h2>
-    <!--				<p class="meta">Posted by <a href="#">Someone</a> on March 10, 2008
-                        &nbsp;&bull;&nbsp; <a href="#" class="comments">Comments (64)</a> &nbsp;&bull;&nbsp; <a href="#" class="permalink">Full article</a></p>-->
-                    <div class="entry">
-                        <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
-                        <p><a href="#/" class="links">View available Git repositories ></a> </p>
-                        <p><a href="#/about/" class="links">Read more about this server and dev team ></a> </p>
-                    </div>
+            <div class="threecol_right">
+                <div class="centered">
+                <h2>What's next?</h2>
+                <ul>
+                    <li><a href="#browse/">View available repositories</a></li>
+                    <li><a href="#about/">Learn about the server</a></li>
+                </ul>
+                &nbsp;
                 </div>
-            </script>
-            <script id="repo_browser_base_tmpl" type="text/x-jquery-tmpl">
-                <div id="repo_browser" class="post">
-                    <h2 class="title">Browse Folders</h2>
-                    <div id="repo_browser_content" class="entry">
-                        Loading content...
-                    </div>
-                </div>
-            </script>
-            <script id="repo_browser_content_tmpl" type="text/x-jquery-tmpl">
-                <div class="browser_content">
-                    <div class="dir_address">
-                    {{each(i,section) path_sections}}
-                    <span class="dir_address_link">
-                    <a href="#{{= section[1]}}">{{= section[0]}}</a>
-                    </span>
-                    {{/each}}
-                    <span class="dir_address_link">{{= path_last_section}}</span>
-                    <strong>:</strong></div>
-                    <div>
-                    {{each(i,dir) dirs}}
-                    {{if dir.is_git_dir}}
-                        <span class="browser_dir_list_item git_dir_decor">
-                            <a href="#{{= path + dir.name}}">{{= dir.name}}</a>
-                        </span>
-                    {{else}}
-                        <span class="browser_dir_list_item dir_decor">
-                            <a href="#{{= path + dir.name}}">{{= dir.name}}</a>
-                        </span>
-                    {{/if}}
-                    {{/each}}
-                    {{if (!dirs.length)}}
-                        <span class="browser_dir_list_item dir_nothing">Folder is empty.</span>
-                    {{/if}}
-                    </div>
-                    {{if record_time}}
-                    <div><p/><p class="meta">Cached data. Updated {{= Math.round(((new Date()).getTime() - record_time)/600)/100 }} minutes ago. Click browser's reload button (or CTRL+R) to refresh the cache.</p></div>
-                    {{/if}}
-                </div>
-            </script>
-            <script id="about_tmpl" type="text/x-jquery-tmpl">
-                <div id="about" class="post">
-                    <h2 class="title">About this server</h2>
-                    <div class="entry">
-                        <p>This is the "stock" G.E.S. v1.0 server instance.</p>
-                        <p>Visit <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> development home page for usage and installation instructions.</p>
-                    </div>
-                </div>
-            </script>
-		<div style="clear: both;">&nbsp;</div>
-		</div>
-		<!-- end #content -->
-		<div id="sidebar">
-			<ul>
-				<li>
-					<h2>What is this?</h2>
-					<p>This is a <a href="http://github.com/dvdotsenko/ges">G.E.S.</a>-based micro-server hosting Git repositories maintained by an example team.</p>
-				</li>
-				<li>
-					<h2>What's next?</h2>
-					<ul>
-						<li><a href="#/">View available repositories ></a></li>
-						<li><a href="#/about/">Learn about the server ></a></li>
-					</ul>
-				</li>
-			</ul>
-		</div>
-		<!-- end #sidebar -->
-		<div style="clear: both;">&nbsp;</div>
-	</div>
-	</div>
-	</div>
-	<!-- end #page -->
+            </div>
+        </div>
+        <div class="spacer"></div>
+    </div>
+    <div id="footer">
+        <div class="right meta">Copyright 2010 <a href="https://github.com/dvdotsenko/ges">Git Enabelment Server project</a></div>
+    </div>
 </div>
-<div id="footer-wrapper">
-	<div id="footer">
-		<p>Copyright (c) 2010 Git Enablement Server project. All rights reserved. Original theme "Anther" designed by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
-	</div>
-	<!-- end #footer -->
-</div>
+<!--end of real body-->
+
+<!-- RENDERING TEMPLATES  -->
+<script id="about_tmpl" type="text/x-jquery-tmpl">
+    <h2>About this server</h2>
+    <p>This is the "stock" G.E.S. v1.0 server instance.</p>
+    <p>Visit <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> development home page for usage and installation instructions.</p>
+</script>
+<script id="dashboard_tmpl" type="text/x-jquery-tmpl">
+    <h2>Welcome to <strong>Git Enablement Server</strong> Example</h2>
+    <p>This is a <a href="http://github.com/dvdotsenko/ges">Git Enablement Server</a> example server instance. It is designed to showcase the functionality of the server. In some ways, the server is self-hosting its own code base.</p>
+    <p><a href="#browse/" class="links">View available Git repositories</a> </p>
+    <p><a href="#about/" class="links">Read more about this server and dev team</a></p>
+</script>
+<!--Browse URIs template - Top-most parent -->
+<script id="browse_tmpl" type="text/x-jquery-tmpl">
+    <h2>Browsing Content</h2>
+    <div id="browse_base">Processing request...</div>
+</script>
+<!-- Browse Base template - Child of Browse URIs template -->
+<!-- It displays path crumbs - element common to all content views.-->
+<script id="browse_base_tmpl" type="text/x-jquery-tmpl">
+    <div class="path_crumbs">
+        {{each(i,section) meta.path_sections}}
+        <span class="path_crumb">
+        <a href="#browse{{= section[1]}}">{{= section[0]}}</a>
+        </span>
+        {{/each}}
+        <span class="path_crumb">{{= meta.path_last_section}}</span>
+        <strong>:</strong>
+    </div>
+    <div id="browse_content">
+    {{if (!data.length)}}
+        <p class="meta">Folder is empty.</p>
+    {{/if}}
+    </div>
+    {{if meta.record_time}}
+        <p class="meta">Cached data. Updated {{= Math.round(((new Date()).getTime() - meta.record_time)/600)/100 }} minutes ago. Click browser's reload button (or CTRL+R) to refresh the cache.</p>
+    {{/if}}
+</script>
+<!-- Browse content Repo summary-specific - Child of Browse Base template -->
+<script id="browse_content_repo_tmpl" type="text/x-jquery-tmpl">
+    {{if (data.endpoints.length > 0)}}
+    <table class="repo_endpoints_table">
+        <thead>
+            <tr>
+                <th style="text-align:right">Branches</th>
+                <th style="text-align:center">Age</th>
+                <th style="text-align:left">Tags</th>
+                <th style="text-align:left">Commit Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{each(i,endpoint) data.endpoints}}
+            <tr>
+                <td style="text-align:right">
+                    {{each(j,branchname) endpoint.branches}}
+                    <span><a href="#browse{{= meta.path + branchname}}">{{= branchname}}</a></span>
+                    {{/each}}
+                </td>
+                <td style="text-align:center">
+                    {{= $item.relative_time_format_fn(endpoint.time) }}
+                </td>
+                <td style="text-align:left">
+                    {{each(j,tagname) endpoint.tags}}
+                    <span><a href="#browse{{= meta.path + tagname}}">{{= tagname}}</a></span>
+                    {{/each}}
+                </td>
+                <td class="has_hoverable">
+                    <a href="#browse{{= meta.path + endpoint.id}}">{{= endpoint.id.slice(0,8)}}..<span>{{= endpoint.time}}<br>{{= endpoint.summary}}</span></a>
+                    &nbsp;by<a href="mailto:{{= endpoint.author_email}}"> {{= endpoint.author}}</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{/if}}
+</script>
+
 </body>
 </html>
