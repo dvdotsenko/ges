@@ -17,12 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licenses/>.
 '''
-import io
+import os.path
 import os
 import sys
 
 path = os.path.abspath('.')
-
 sys.path.append(os.path.join(path, 'git_http_backend'))
 sys.path.append(os.path.join(path, 'gitpython', 'lib'))
 
@@ -30,6 +29,7 @@ import git_http_backend
 from cherrypy import wsgiserver
 import jsonrpc_wsgi_application as jrpc
 import ges_rpc_methods
+import fuzzy_path_handler
 
 # we are using a custom version of subprocess.Popen - PopenIO 
 # with communicateIO() method that starts reading into mem
@@ -44,9 +44,13 @@ try:
 except:
     import subprocessio.subprocessio as subprocess
 
-def assemble_ges_app(path_prefix = '.', repo_uri_marker = '', performance_settings = {}):
+def assemble_ges_app(*args, **kw):
     '''
-    Assembles basic WSGI-compatible application providing functionality of git-http-backend.
+    Assembles G.E.S. WSGI application.
+
+    path_prefix = '.',
+    static_content_path = './static'
+    repo_uri_marker = ''
 
     path_prefix (Defaults to '.' = "current" directory)
         The path to the folder that will be the root of served files. Accepts relative paths.
@@ -69,33 +73,52 @@ def assemble_ges_app(path_prefix = '.', repo_uri_marker = '', performance_settin
     returns WSGI application instance.
     '''
 
-    repo_uri_marker = repo_uri_marker.decode('utf8')
-    path_prefix = path_prefix.decode('utf8')
-    settings = {"path_prefix": path_prefix.decode('utf8')}
-    settings.update(performance_settings)
+    default_options = [
+        ['content_path','.'],
+        ['static_content_path', './static'],
+        ['uri_marker','']
+    ]
+    options = dict(default_options)
+    options.update(kw)
+    args = list(args) # need this to allow .pop method on it.
+    while default_options and args:
+        _d = default_options.pop(0)
+        _a = args.pop(0)
+        options[_d[0]] = _a
+    for _e in ['content_path','static_content_path']:
+        options[_e] = os.path.abspath(options[_e].decode('utf8'))
+    options['uri_marker'] = options['uri_marker'].decode('utf8')
+    if not os.path.isfile(os.path.join(options['static_content_path'],'favicon.ico')):
+        if '__file__' in dir() and os.path.isfile(os.path.join(os.path.split(__file__)[0],'static','favicon.ico')):
+            options['static_content_path'] = os.path.join(os.path.split(__file__)[0],'static')
+            # TODO: this may still not be it. Fix.
+        else:
+            raise Exception('G.E.S.: Specified static content directory - "%s" - does not contain expected files. Please, provide correct "static_content_path" variable value.' % options['static_content_path'])
 
     # assembling JSONRPC WSGI app
+    # it has two parts:
+    #  (a) ges-specific RPC methods that return JSON-compatible objects
+    #  (b) generic WSGI JSONRPC wrapper for stuff like (a)
     _methods_list = ges_rpc_methods.assemble_methods_list(
-        path_prefix = 'c:\\tmp\\reposbase',
-        uri_marker = '',
-        settings = {}
+        options['content_path']
         )
     _jsonrpc_app = jrpc.WSGIJSONRPCApplication()
     for path, method_pointer in _methods_list:
         _jsonrpc_app.add_method(path, method_pointer)
 
     # assembling static file server WSGI app
-    _static_server_app = git_http_backend.StaticWSGIServer(path_prefix = r'C:\Users\ddotsenko\Desktop\Work\Projects\git_http_backend\ges\src\static')
+    _static_server_app = git_http_backend.StaticWSGIServer(content_path = options['static_content_path'])
 
-    if repo_uri_marker:
-        marker_regex = r'(?P<decorative_path>.*?)(?:/'+ repo_uri_marker + ')'
+    # git_http_backend-specific server components.
+    git_inforefs_handler = git_http_backend.GitHTTPBackendInfoRefs(**options)
+    git_rpc_handler = git_http_backend.GitHTTPBackendSmartHTTP(**options)
+    fuzzy_handler = fuzzy_path_handler.FuzzyPathHandler(**options)
+
+    if options['uri_marker']:
+        marker_regex = r'(?P<decorative_path>.*?)(?:/'+ options['uri_marker'] + ')'
     else:
         marker_regex = ''
     selector = git_http_backend.WSGIHandlerSelector()
-    selector.add(
-        marker_regex + r'/showvars',
-        ShowVarsWSGIApp()
-        )
     selector.add(
         marker_regex + r'/rpc[/]*$',
         _jsonrpc_app)
@@ -107,6 +130,20 @@ def assemble_ges_app(path_prefix = '.', repo_uri_marker = '', performance_settin
         marker_regex + r'/static/(?P<working_path>.*)$',
         GET = _static_server_app,
         HEAD = _static_server_app)
+    selector.add(
+        marker_regex + r'(?P<working_path>.*?)/info/refs\?.*?service=(?P<git_command>git-[^&]+).*$',
+        GET = git_inforefs_handler,
+        HEAD = git_inforefs_handler
+        )
+    selector.add(
+        marker_regex + r'(?P<working_path>.*)/(?P<git_command>git-[^/]+)$',
+        POST = git_rpc_handler
+        )
+    selector.add(
+        marker_regex + r'(?P<working_path>.*)$',
+        GET = fuzzy_handler,
+        HEAD = fuzzy_handler)
+
     return selector
 
 class ShowVarsWSGIApp(object):
@@ -194,11 +231,14 @@ c:\tools\git_http_backend\GitHttpBackend.py
 '''
     import sys
 
-    command_options = {
-            'path_prefix' : '.',
-            'repo_uri_marker' : '',
-            'port' : '8888'
-        }
+    command_options = dict([
+        # ['content_path','.'],
+        ['content_path','c:\\tmp\\reposbase'],
+        ['static_content_path', './static'],
+        ['uri_marker',''],
+        ['port', '8888']
+    ])
+
     lastKey = None
     for item in sys.argv:
         if item.startswith('--'):
@@ -208,28 +248,23 @@ c:\tools\git_http_backend\GitHttpBackend.py
             command_options[lastKey] = item.strip('"').strip("'")
             lastKey = None
 
-    path_prefix = os.path.abspath( command_options['path_prefix'] )
-
     if 'help' in command_options:
         print _help
     else:
-        app = assemble_ges_app(
-            path_prefix = path_prefix,
-            repo_uri_marker = command_options['repo_uri_marker']
-        )
+        app = assemble_ges_app(**command_options)
         
-#        from cherrypy import wsgiserver
-#        httpd = wsgiserver.CherryPyWSGIServer(('127.0.0.1',int(command_options['port'])),app)
-        from wsgiref import simple_server
-        httpd = simple_server.make_server('127.0.0.1',int(command_options['port']),app)
+        from cherrypy import wsgiserver
+        httpd = wsgiserver.CherryPyWSGIServer(('127.0.0.1',int(command_options['port'])),app)
+#        from wsgiref import simple_server
+#        httpd = simple_server.make_server('127.0.0.1',int(command_options['port']),app)
 
-        if command_options['repo_uri_marker']:
-            _s = '"/%s/".' % command_options['repo_uri_marker']
+        if command_options['uri_marker']:
+            _s = '"/%s/".' % command_options['uri_marker']
             example_URI = '''http://localhost:%s/whatever/you/want/here/%s/myrepo.git
     (Note: "whatever/you/want/here" cannot include the "/%s/" segment)''' % (
             command_options['port'],
-            command_options['repo_uri_marker'],
-            command_options['repo_uri_marker'])
+            command_options['uri_marker'],
+            command_options['uri_marker'])
         else:
             _s = 'not chosen.'
             example_URI = 'http://localhost:%s/myrepo.git' % (command_options['port'])
@@ -247,17 +282,17 @@ Example repo url would be:
 
 Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
 ===========================================================================
-''' % (command_options['port'], path_prefix, _s, example_URI)
+''' % (command_options['port'], command_options['content_path'], _s, example_URI)
 
-#        # running with CherryPy's WSGI Server
-#        try:
-#            httpd.start()
-#        except KeyboardInterrupt:
-#            pass
-#        finally:
-#            httpd.stop()
-        # running with cPython's builtin WSGIREF
+        # running with CherryPy's WSGI Server
         try:
-            httpd.serve_forever()
+            httpd.start()
         except KeyboardInterrupt:
             pass
+        finally:
+            httpd.stop()
+#        # running with cPython's builtin WSGIREF
+#        try:
+#            httpd.serve_forever()
+#        except KeyboardInterrupt:
+#            pass
