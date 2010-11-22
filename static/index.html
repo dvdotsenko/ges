@@ -118,7 +118,7 @@
             <tr>
                 <td style="text-align:right">
                     {{each(j,branchname) endpoint.branches}}
-                    <span><a href="#browse{{= meta.path + branchname}}">{{= branchname}}</a></span>
+                    <span><a href="#browse{{= meta.path + '/' + branchname}}">{{= branchname}}</a></span>
                     {{/each}}
                 </td>
                 <td style="text-align:center">
@@ -126,12 +126,12 @@
                 </td>
                 <td style="text-align:left">
                     {{each(j,tagname) endpoint.tags}}
-                    <span><a href="#browse{{= meta.path + tagname}}">{{= tagname}}</a></span>
+                    <span><a href="#browse{{= meta.path + '/' + tagname}}">{{= tagname}}</a></span>
                     {{/each}}
                 </td>
                 <td class="has_hoverable">
-                    <a href="#browse{{= meta.path + endpoint.id}}">{{= endpoint.id.slice(0,8)}}..<span>{{= endpoint.time}}<br>{{= endpoint.summary}}</span></a>
-                    &nbsp;by<a href="mailto:{{= endpoint.author_email}}"> {{= endpoint.author}}</a>
+                    <a href="#browse{{= meta.path + '/' + endpoint.id}}">{{= endpoint.id.slice(0,8)}}..<span>{{= endpoint.time}}<br>{{= endpoint.summary}}</span></a>
+                    &nbsp;by<a href="mailto:{{= endpoint.author_email}}?subject={{= escape('Re: /' + meta.path + '/' + endpoint.id) }}"> {{= endpoint.author}}</a>
                 </td>
             </tr>
             {{/each}}
