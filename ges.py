@@ -30,6 +30,7 @@ from cherrypy import wsgiserver
 import jsonrpc_wsgi_application as jrpc
 import ges_rpc_methods
 import fuzzy_path_handler
+import serve_index_file
 
 # we are using a custom version of subprocess.Popen - PopenIO 
 # with communicateIO() method that starts reading into mem
@@ -106,6 +107,8 @@ def assemble_ges_app(*args, **kw):
     for path, method_pointer in _methods_list:
         _jsonrpc_app.add_method(path, method_pointer)
 
+    _serve_index_file = serve_index_file.ServeIndexFile(**options)
+
     # assembling static file server WSGI app
     _static_server_app = git_http_backend.StaticWSGIServer(content_path = options['static_content_path'])
 
@@ -119,6 +122,9 @@ def assemble_ges_app(*args, **kw):
     else:
         marker_regex = ''
     selector = git_http_backend.WSGIHandlerSelector()
+    selector.add(
+        marker_regex + r'/$',
+        _serve_index_file)
     selector.add(
         marker_regex + r'/rpc[/]*$',
         _jsonrpc_app)
