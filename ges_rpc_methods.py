@@ -252,10 +252,10 @@ class PathSummaryProducer(BaseRPCClass):
                             )
                         )
         if type(_t) == git.Blob:
-            if _t.size < 64000: # add: and mime_type is some sort of plain-text or image.
-                return 'repoitem', {'mimetype':_t.mime_type,'name':_t.name,'size':_t.size,'data':_t.data}
-            else:
-                return 'repoitem', {'mimetype':_t.mime_type,'name':_t.name,'size':_t.size}
+#            if _t.size < 64000: # add: and mime_type is some sort of plain-text or image.
+#                return 'repoitem', {'mimetype':_t.mime_type,'name':_t.name,'size':_t.size,'data':_t.data}
+#            else:
+            return 'repoitem', {'mimetype':_t.mime_type,'name':_t.name,'size':_t.size}
         elif type(_t) == git.Tree:
             items = []
             for _o in _t.values():

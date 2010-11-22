@@ -130,17 +130,6 @@ class test_GesRPCMethods(unittest.TestCase):
             , 'type': 'repofolder'}
         )
         self.assertEquals(
-            _m('projects/demorepoone/master/somefolder'),
-            {'data': [
-                {'url': 'git://gitorious.org/git_http_backend_py/git_http_backend_py.git'
-                 , 'commit_id': '08a4dca6a06e2f8893a955d757d505f0431321cb'
-                 , 'type': 'submodule'
-                 , 'name': 'nestedmodule'}
-            ]
-            , 'meta': {'path': u'projects/demorepoone/master/somefolder'}
-            , 'type': 'repofolder'}
-        )
-        self.assertEquals(
             _m('projects/demorepoone/master/firstdoc.txt'),
             {'data':
                 {'mimetype': 'text/plain'
