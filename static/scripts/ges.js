@@ -21,15 +21,33 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
 
 (function($) {
 
+    // these are specific to SyntaxHighlighter from http://alexgorbatchev.com/SyntaxHighlighter/
+    var _syntax_highlighter_template_map = {
+            // built-ins in SyntexHighlighter
+            "as3": "as3", "vb": "vb", "text": "text", "cf": "cf"
+            , "c-sharp": "c-sharp", "pascal": "pascal", "csharp": "csharp"
+            , "diff": "diff", "ror": "ror", "php": "php", "xml": "xml"
+            , "ps": "ps", "pas": "pas", "java": "java", "scala": "scala"
+            , "delphi": "delphi", "py": "py", "rails": "rails", "perl": "perl"
+            , "html": "html", "xhtml": "xhtml", "erlang": "erlang"
+            , "vbnet": "vbnet", "css": "css", "shell": "shell", "xslt": "xslt"
+            , "python": "python", "javascript": "javascript", "js": "js"
+            , "cpp": "cpp", "sql": "sql", "actionscript3": "actionscript3"
+            , "ruby": "ruby","bash": "bash", "groovy": "groovy", "c": "c"
+            , "coldfusion": "coldfusion", "plain": "plain", "javafx": "javafx"
+            , "patch": "patch", "jscript": "jscript", "jfx": "jfx", "pl": "pl"
+            , "erl": "erl", "powershell": "powershell"
+            // Custom extension-to-built-in mapping. Add yours here.
+            , 'txt':'text', 'cs':'csharp', 'ru':'ruby'
+        }
+
     function render_folder_listing(parent_jqobj, response_data) {
-        console.log(response_data)
         var i, _t, _di
             , _path_prefix = response_data.meta.path
         for (i = response_data.data.length-1; i > -1; i--) {
             _di = response_data.data[i]
             _t = $('<span><span style="display: inline-block;"><a href="#browse'+_path_prefix+'/'+_di['name']+'">'+_di['name']+'</a></span> </span>')
             for (var prop in _di) {
-                console.log(_di.name, prop)
                 _t.attr('data-filelister-'+prop, _di[prop])
             }
             if ( _di.type == 'folder' || _di.type == 'submodule' ) {
@@ -37,9 +55,14 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
             } else {
                 _t.attr('data-filelister-typegroup',2)
             }
+            if (_di.is_repo){
+                _display_type = 'repo'
+            } else {
+                _display_type = _di.type
+            }
             _t.children('span')
                 .addClass('folder_list_item_label')
-                .addClass(_di.type + '_decor')
+                .addClass(_display_type + '_decor')
             _t.attr('data-filelister-id',i)
                 .addClass('folder_list_item_inline')
                 .appendTo(parent_jqobj)
@@ -165,7 +188,6 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
 
     function render_browser_content(response_data, parent_jqobj) {
         // adding path crumbs to the data and rendering just the crumbs
-        console.log(response_data)
         add_path_crumbs(response_data)
         parent_jqobj.html($('#browse_base_tmpl').tmpl(response_data))
 
@@ -175,8 +197,25 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         // 'repofile','file', 'repo' are specially formatted.
         // the rest is "folder-like" whether inside or outside of repo.
         var _t = response_data.type
-        if (_t == 'repofile' || _t == 'file' ) {
-            alert("listing of file, repofile not implemented")
+        if (_t == 'repoitem' || _t == 'file' ) {
+            response_data.data.data = response_data.data.data || ''
+            response_data.meta['syntax_template'] = _syntax_highlighter_template_map[response_data.data.type.extension] || 'text'
+            _b.html(
+                $('#browse_content_repoitem_tmpl').tmpl(response_data)
+            )
+            if ( $('pre', _b) ) {
+                _path_to_syntax_highlighter = 'static/syntaxhighlighter/'
+                _css = ['styles/shCore.css','styles/shThemeDefault.css']
+                _h = $("head")
+                for (var i = 0, l = _css.length; i < l; i++ ){
+                    _h.append('<link href="'+_path_to_syntax_highlighter+_css[i]+'" rel="stylesheet" type="text/css" />');
+                }
+                $.getScript(_path_to_syntax_highlighter + 'scripts/shCore.js', function(){
+                    $.getScript(_path_to_syntax_highlighter + 'scripts/shAutoloader.js', function(){
+                        $.getScript(_path_to_syntax_highlighter + 'scripts/autoloader_actuator.js')
+                    })
+                })
+            }
         } else if (_t == 'repo') {
             // render repo endpoints view.
             _b.html(

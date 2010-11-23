@@ -148,5 +148,21 @@
     {{/if}}
 </script>
 
+<script id="browse_content_repoitem_tmpl" type="text/x-jquery-tmpl">
+    <div id="browse_content_file_options">
+        <div class="meta">(size: {{= data.size}} bytes, mime type: {{= data.type.mimetype}})</div>
+    </div>
+    {{if (data.type.supermimetype == 'text')}}
+        <pre class="brush: {{= meta.syntax_template}}" id="browse_content_file_contents">{{= data.data}}</pre>
+    {{else (data.type.supermimetype == 'image')}}
+        <div class="image_frame"><img alt="{{= data.name}}" src="{{= meta.path}}" /></div>
+    {{else}}
+        <div class="meta">Binary file. No preview available.</div>
+    {{/if}}
+    <div class="spacer"></div>
+    <div class="downloadable"><a href="{{= meta.path}}">Download raw file</a></div>
+    <div class="spacer"></div>
+</script>
+
 </body>
 </html>

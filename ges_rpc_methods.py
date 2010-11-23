@@ -31,6 +31,11 @@ class PathUnfitError(Exception):
 class PathContainsRepoDirError(Exception):
     pass
 
+import mimetypes
+mimetypes.add_type('application/x-git-packed-objects-toc','.idx')
+mimetypes.add_type('application/x-git-packed-objects','.pack')
+mimetypes.add_type('text/plain','.cs')
+
 class BaseRPCClass(object):
 
     def __init__(self, base_path):
@@ -252,10 +257,22 @@ class PathSummaryProducer(BaseRPCClass):
                             )
                         )
         if type(_t) == git.Blob:
-#            if _t.size < 64000: # add: and mime_type is some sort of plain-text or image.
-#                return 'repoitem', {'mimetype':_t.mime_type,'name':_t.name,'size':_t.size,'data':_t.data}
-#            else:
-            return 'repoitem', {'mimetype':_t.mime_type,'name':_t.name,'size':_t.size}
+            _size = _t.size
+            _mime = mimetypes.guess_type(_t.name, False)[0] or 'application/octet-stream'
+            _r = (
+                'repoitem'
+                , {'type': {
+                        'mimetype': _mime
+                        ,'supermimetype': _mime.split('/',1)[0]
+                        ,'extension': os.path.splitext(_t.name)[1].strip('.') or 'txt'
+                        }
+                    ,'name':_t.name
+                    ,'size':_size
+                    }
+                )
+            if _size < 64000 and _mime.startswith('text'): # add: and mime_type is some sort of plain-text or image.
+                _r[1]['data'] = _t.data
+            return _r
         elif type(_t) == git.Tree:
             items = []
             for _o in _t.values():

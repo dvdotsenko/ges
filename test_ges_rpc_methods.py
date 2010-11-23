@@ -131,12 +131,16 @@ class test_GesRPCMethods(unittest.TestCase):
         )
         self.assertEquals(
             _m('projects/demorepoone/master/firstdoc.txt'),
-            {'data':
-                {'mimetype': 'text/plain'
-                ,'data': 'Line one here.\r\nLine two here.\r\nLine three here.\r\nLine four here.'
-                ,'name': 'firstdoc.txt', 'size': 65}
-            ,'meta': {'path': u'projects/demorepoone/master/firstdoc.txt'}
-            ,'type': 'repoitem'}
+            {'data': {
+                'data': 'Line one here.\r\nLine two here.\r\nLine three here.\r\nLine four here.'
+                , 'type': {'mimetype': 'text/plain', 'supermimetype': 'text', 'extension': 'txt'}
+                , 'name': 'firstdoc.txt'
+                , 'size': 65
+                }
+            ,'meta': {
+                'path': u'projects/demorepoone/master/firstdoc.txt'
+                }
+            , 'type': 'repoitem'}
         )
         # we don't allow seeing files / folders inside repo folders
         self.assertRaises(grm.PathUnfitError, _m, 'projects/demorepoone/objects')

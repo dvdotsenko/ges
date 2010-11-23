@@ -23,11 +23,12 @@
 .path_crumb {
     background: url(images/sep.png) no-repeat left center;
     padding-left: 7px;
-    text-transform: capitalize;
+/*    text-transform: capitalize;*/
 }
 
 .folder_list_item_inline {
     display: inline;
+    line-height: 175%;
 }
 
 .folder_list_item_block {
@@ -50,7 +51,7 @@
 .unknown_decor {
     font-style: italic;
 }
-.repofolder_git_decor {
+.repo_decor {
     background: url(images/git.png) no-repeat left center;
     font-weight: bold;
 }
@@ -81,6 +82,36 @@
     border-width: thin;
     font: 0.7em Verdana, sans-serif;
     text-align: center;
+}
+
+.downloadable {
+    display: block;
+    float:left;
+    width: auto;
+    padding: 0.25em;
+    margin: 0.25em;
+    color: black;
+    background: yellowgreen;
+    border-style: solid;
+    border-color: darkgreen;
+    border-width: thin;
+/*    text-align: center;*/
+}
+
+.downloadable a {
+    color: black;
+}
+
+.image_frame {
+    display: block;
+    float:left;
+    width: auto;
+    padding: 5px;
+    margin: 0.5em;
+    background: white;
+    border-style: solid;
+    border-color: gray;
+    border-width: thin;
 }
 
 #filelister_content {
