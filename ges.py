@@ -77,7 +77,8 @@ def assemble_ges_app(*args, **kw):
     default_options = [
         ['content_path','.'],
         ['static_content_path', './static'],
-        ['uri_marker','']
+        ['uri_marker',''],
+        ['devel', False]
     ]
     options = dict(default_options)
     options.update(kw)
@@ -150,6 +151,9 @@ def assemble_ges_app(*args, **kw):
         GET = fuzzy_handler,
         HEAD = fuzzy_handler)
 
+    if 'devel' in options and options['devel']:
+        import wsgilog
+        return wsgilog.WsgiLog(selector, tostream=True, toprint=True)
     return selector
 
 class ShowVarsWSGIApp(object):
@@ -242,7 +246,8 @@ c:\tools\git_http_backend\GitHttpBackend.py
         ['content_path','c:\\tmp\\reposbase'],
         ['static_content_path', './static'],
         ['uri_marker',''],
-        ['port', '8888']
+        ['port', '8888'],
+        ['devel', False]
     ])
 
     lastKey = None
