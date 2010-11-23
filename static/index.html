@@ -118,7 +118,11 @@
             <tr>
                 <td style="text-align:right">
                     {{each(j,branchname) endpoint.branches}}
-                    <span><a href="#browse{{= meta.path + '/' + branchname}}">{{= branchname}}</a></span>
+                    {{if (j == 0)}}
+                        <span><a href="#browse{{= meta.path + '/' + branchname}}">{{= branchname}}</a></span>
+                    {{else}}
+                        <span>, <a href="#browse{{= meta.path + '/' + branchname}}">{{= branchname}}</a></span>
+                    {{/if}}
                     {{/each}}
                 </td>
                 <td style="text-align:center">
@@ -126,7 +130,11 @@
                 </td>
                 <td style="text-align:left">
                     {{each(j,tagname) endpoint.tags}}
-                    <span><a href="#browse{{= meta.path + '/' + tagname}}">{{= tagname}}</a></span>
+                    {{if (j == 0)}}
+                        <span><a href="#browse{{= meta.path + '/' + tagname}}">{{= tagname}}</a></span>
+                    {{else}}
+                        <span>, <a href="#browse{{= meta.path + '/' + tagname}}">{{= tagname}}</a></span>
+                    {{/if}}
                     {{/each}}
                 </td>
                 <td class="has_hoverable">
