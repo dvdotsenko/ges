@@ -81,7 +81,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         @param sortable_selector A string compatible with jQuery selector format
             that allows jQuery to get a list of DOM objects to sort.
 
-        @param rules An array of arrays listing the elements by which the elements
+        @param original_rules An array of arrays listing the elements by which the elements
             are to be sorted. Example [['arg1','asc'],['arg2','desc'],['arg3']]
             Shorthans are allowed:
                 'arg1' = [['arg1','asc']]
@@ -89,12 +89,13 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
 
         @param options (optional) An object whose properties provide auxiliary context data
             for the process.
+            One wired-up option is attr_name_prefix
 
         @return Nothing
         */
 
         var i, j, _l // we use these for "for" loops
-
+        if (!options) {options = {}}
         // we allow one-arg (string) entry for sort_by value 
         // but need to convert that into array.
         // also because we are messing around with the rules obj, we need a new one
@@ -113,7 +114,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
 
         var _san // string representing full name of attribute by which we sort
             , _so // int representing the order (+1 for Asc, -1 for Desc)
-            , attr_prefix = options['attr_prefix'] ? options['attr_prefix'] : ''
+            , attr_prefix = options['attr_name_prefix'] ? options['attr_name_prefix'] : ''
             , sortables = parent_jqobj.children(sortables_selector).get()
             , A, B, AN, BN
             , order_flags = {'asc':1,'ASC':1,'Asc':1,'a':1,'A':1,'desc':-1,'DESC':-1,'Desc':-1,'d':-1,'D':-1}
@@ -221,8 +222,16 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
             _b.html(
                 $('#browse_content_repo_tmpl').tmpl(
                     response_data,
-                    {'relative_time_format_fn':relative_time_format}
+                    {
+                        'relative_time_format_fn':relative_time_format,
+                        'time_str_to_int_fn':function (t){return (new Date(t)).getTime()}
+                    }
                 )
+            )
+            sort_elements_by_attr(
+                $('tbody',_b),
+                'tr',
+                [['data-time_stamp','desc']]
             )
         } else {
             render_folder_listing(_b, response_data)
@@ -230,7 +239,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 _b,
                 'span',
                 [['typegroup','asc'],['name','asc']],
-                {'attr_prefix':'data-filelister-'}
+                {'attr_name_prefix':'data-filelister-'}
             )
         }
     }

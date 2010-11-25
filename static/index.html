@@ -115,7 +115,7 @@
         </thead>
         <tbody>
             {{each(i,endpoint) data.endpoints}}
-            <tr>
+            <tr data-time_stamp="{{= $item.time_str_to_int_fn(endpoint.time)}}"">
                 <td style="text-align:right">
                     {{each(j,branchname) endpoint.branches}}
                     {{if (j == 0)}}
