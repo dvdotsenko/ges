@@ -56,6 +56,11 @@
     font-weight: bold;
 }
 
+.repo_endpoints_table {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
 .repo_endpoints_table th {
     padding-left: 1em;
     padding-right: 1em;
@@ -120,6 +125,8 @@
 
 .properties_table {
     display:table;
+    margin-top: 0.5em;
+    margin-bottom: 1em;
 }
 
 .properties_table .table_row {
@@ -133,8 +140,11 @@
 
 .property_label {
     text-align: right;
-    font-style: italic;
-    font-weight: 200;
+/*    font-style: italic;*/
+    font-weight: bold;
+    border-right-color: darkgrey;
+    border-right-style: solid;
+    border-right-width: thick;
 }
 
 .property_value {

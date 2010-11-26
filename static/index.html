@@ -103,6 +103,16 @@
 </script>
 <!-- Browse content Repo summary-specific - Child of Browse Base template -->
 <script id="browse_content_repo_tmpl" type="text/x-jquery-tmpl">
+    <div class="properties_table">
+        <div class="table_row">
+            <span class="table_cell property_label">Description</span>
+            <span class="table_cell property_value">{{= data.description}}</span>
+        </div>
+        <div class="table_row">
+            <span class="table_cell property_label">Clone, push URI</span>
+            <span class="table_cell property_value">{{= $item.get_full_application_uri() + meta.path }}</span>
+        </div>
+    </div>
     {{if (data.endpoints.length > 0)}}
     <table class="repo_endpoints_table">
         <thead>
@@ -146,17 +156,6 @@
         </tbody>
     </table>
     {{/if}}
-    <h4>Repo Info</h4>
-    <div class="properties_table">
-        <div class="table_row">
-            <span class="table_cell property_label">Description:</span>
-            <span class="table_cell property_value">{{= data.description}}</span>
-        </div>
-        <div class="table_row">
-            <span class="table_cell property_label">URI:</span>
-            <span class="table_cell property_value">{{= $item.get_full_application_uri() + meta.path }}</span>
-        </div>
-    </div>
 </script>
 
 <script id="browse_content_repoitem_tmpl" type="text/x-jquery-tmpl">
