@@ -118,3 +118,32 @@
     line-height: 150%;
 }
 
+.properties_table {
+    display:table;
+}
+
+.properties_table .table_row {
+    display:table-row;
+}
+
+.properties_table .table_row .table_cell {
+    display:table-cell;
+    padding: 0.3em;
+}
+
+.property_label {
+    text-align: right;
+    font-style: italic;
+    font-weight: 200;
+}
+
+.property_value {
+    text-align: left;
+}
+
+h4 {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    margin: 0;
+    margin-top: 0.25em;
+}

@@ -146,6 +146,17 @@
         </tbody>
     </table>
     {{/if}}
+    <h4>Repo Info</h4>
+    <div class="properties_table">
+        <div class="table_row">
+            <span class="table_cell property_label">Description:</span>
+            <span class="table_cell property_value">{{= data.description}}</span>
+        </div>
+        <div class="table_row">
+            <span class="table_cell property_label">URI:</span>
+            <span class="table_cell property_value">{{= $item.get_full_application_uri() + meta.path }}</span>
+        </div>
+    </div>
 </script>
 
 <script id="browse_content_repoitem_tmpl" type="text/x-jquery-tmpl">

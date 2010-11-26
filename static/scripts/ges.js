@@ -41,6 +41,12 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
             , 'txt':'text', 'cs':'csharp', 'ru':'ruby'
         }
 
+    // this is a one-page application. Both, the git server and the UI are served
+    // from exactly the same URI. Our server does not know (or care) what URL it serves.
+    function get_full_application_uri(){
+        return location.href.substr(0,location.href.indexOf('\/#'))
+    }
+
     function render_folder_listing(parent_jqobj, response_data) {
         var i, _t, _di
             , _path_prefix = response_data.meta.path
@@ -224,12 +230,13 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                     response_data,
                     {
                         'relative_time_format_fn':relative_time_format,
-                        'time_str_to_int_fn':function (t){return (new Date(t)).getTime()}
+                        'time_str_to_int_fn':function (t){return (new Date(t)).getTime()},
+                        'get_full_application_uri':get_full_application_uri
                     }
                 )
             )
             sort_elements_by_attr(
-                $('tbody',_b),
+                $('.repo_endpoints_table tbody', _b),
                 'tr',
                 [['data-time_stamp','desc']]
             )
