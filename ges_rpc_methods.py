@@ -297,6 +297,20 @@ class PathSummaryProducer(BaseRPCClass):
                         'name':_o.name
                         })
             return 'repofolder', items
+        elif type(_t) == git.Submodule:
+            return (
+                'remotelink'
+                , {'type': {
+                        'system': 'git',
+                        'class': 'submodule'
+                        }
+                    ,'name':_t.name
+                    ,'url':_t.url
+                    ,'id':_t.id
+                    }
+                )
+        else:
+            raise Exception("Repo object is of unsupported type.")
 
     def _repo_endpoints_helper(self, _data, _commit):
         _data['id'] = _commit.id

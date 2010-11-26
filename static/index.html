@@ -168,5 +168,22 @@
     <div class="spacer"></div>
 </script>
 
+<script id="browse_content_remotelink_tmpl" type="text/x-jquery-tmpl">
+    <div class="properties_table">
+        <div class="table_row">
+            <span class="table_cell property_label">Description</span>
+            <span class="table_cell property_value">This is a link to a {{= data.type.system}} {{= data.type.class}}.</span>
+        </div>
+        <div class="table_row">
+            <span class="table_cell property_label">Remote resource URI</span>
+            <span class="table_cell property_value">{{= data.url}}</span>
+        </div>
+        <div class="table_row">
+            <span class="table_cell property_label">Remote resource's commit ID</span>
+            <span class="table_cell property_value">{{= data.id}}</span>
+        </div>
+    </div>
+</script>
+
 </body>
 </html>

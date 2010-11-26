@@ -259,6 +259,26 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 'tr',
                 [['data-time_stamp','desc']]
             )
+        } else if (_t == 'remotelink') {
+            // git submodules
+            parent_jqobj.html(
+                $('#browse_base_tmpl').tmpl(
+                    response_data,
+                    {
+                        'get_full_application_uri':get_full_application_uri,
+                        'title':'Remote Link'
+                    }
+                )
+            )
+            _b = $('#browse_content', parent_jqobj)
+            _b.html(
+                $('#browse_content_remotelink_tmpl').tmpl(
+                    response_data,
+                    {
+                        'get_full_application_uri':get_full_application_uri
+                    }
+                )
+            )
         } else {
             parent_jqobj.html(
                 $('#browse_base_tmpl').tmpl(

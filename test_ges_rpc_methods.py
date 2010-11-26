@@ -105,6 +105,22 @@ class test_GesRPCMethods(unittest.TestCase):
 #                {'branches': ['master'], 'author': 'D.Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Adding submodule for testing.', 'time': 'Sun Oct 31 05:15:14 2010 UTC', 'auth_time': 'SatOct 30 08:20:33 2010 UTC', 'id': '3408e8f7720eff4a1fd16e9bf654332036c39bf8'}, {'branches': ['experimental'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Starting evern more radical feature.', 'time': 'Mon Oct 18 01:22:24 2010 UTC', 'auth_time': 'Mon Oct 18 01:22:24 2010 UTC', 'id': '885f5a29f0bede312686c9cabcef1dcd9c418fb4'}, {'branches': ['stable'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.2'], 'summary': 'Adding new feature.', 'time': 'Mon Oct 18 01:18:55 2010 UTC', 'auth_time': 'Mon Oct 18 01:18:55 2010 UTC', 'id': '263e545b2227821bd7254bfb60fb11dae3aa9d0b'}, {'branches': [], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.1'], 'summary': 'Changed firstdoc.txt', 'time': 'Mon Oct 18 01:17:21 2010 UTC', 'auth_time': 'Mon Oct 18 01:17:21 2010 UTC', 'id': '457c6388d3d6f2608038a543e272e7fc1dfc2082'}], 'description': "Unnamed repository; edit this file 'description' to name the repository."}, 'meta': {'path': u'projects/demorepoone'}, 'type': 'repo'}
 #        )
         self.assertEquals(
+            # test submodule here.
+            True,
+            {
+             'type':'remotelink'
+            ,'data':{
+                'type': {
+                    'system': 'git',
+                    'class': 'submodule'
+                    }
+                ,'name':'mysubmodule'
+                ,'url':'http://example.com/folder/repofolder'
+                ,'id':'1243124312431243143'
+                }
+            }
+        )
+        self.assertEquals(
             _m('projects/demorepoone/master'),
             {'data': [
                 {'type': 'file', 'name': 'firstdoc.txt', 'size': 65}
