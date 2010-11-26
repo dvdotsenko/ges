@@ -77,20 +77,14 @@
 </script>
 <!--Browse URIs template - Top-most parent -->
 <script id="browse_tmpl" type="text/x-jquery-tmpl">
-    <h2>Browsing Content</h2>
-    <div id="browse_base">Processing request...</div>
+    <div id="browse_base">Processing...</div>
 </script>
 <!-- Browse Base template - Child of Browse URIs template -->
 <!-- It displays path crumbs - element common to all content views.-->
 <script id="browse_base_tmpl" type="text/x-jquery-tmpl">
+    <h2>{{= $item.title }}</h2>
     <div class="path_crumbs">
-        {{each(i,section) meta.path_sections}}
-        <span class="path_crumb">
-        <a href="#browse{{= section[1]}}">{{= section[0]}}</a>
-        </span>
-        {{/each}}
-        <span class="path_crumb">{{= meta.path_last_section}}</span>
-        <strong>:</strong>
+{{if (meta.path_first_section)}}<span class="path_crumb home_decor"><a href="#browse{{= meta.path_first_section[1]}}">{{= meta.path_first_section[0]}}</a></span>/{{/if}}{{each(i,section) meta.path_sections}}<span class="path_crumb folder_decor"><a href="#browse{{= section[1]}}">{{= section[0]}}</a></span>/{{/each}}<span class="last_path_crumb">{{= meta.path_last_section}}</span>
     </div>
     <div id="browse_content">
     {{if (!data.length)}}

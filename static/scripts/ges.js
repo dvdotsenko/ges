@@ -187,24 +187,33 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
             }
         }
         // Because we check for non-empty path element above, ref to root folder is lost. Adding:
-        _parent_links = [['(Starting folder)','/']].concat(_parent_links)
+        _parent_links = [[get_full_application_uri(),'/']].concat(_parent_links)
         response_data['meta']['path'] = _path_so_far // this just adds "/" when needed."
         response_data['meta']['path_last_section'] = _parent_links.pop()[0]
+        if (_parent_links.length) {
+            response_data['meta']['path_first_section'] = _parent_links.shift()
+        }
         response_data['meta']['path_sections'] = _parent_links
     }
 
     function render_browser_content(response_data, parent_jqobj) {
         // adding path crumbs to the data and rendering just the crumbs
         add_path_crumbs(response_data)
-        parent_jqobj.html($('#browse_base_tmpl').tmpl(response_data))
-
-        var _b = $('#browse_content', parent_jqobj)
-
         // now we need to figure out what to render.
         // 'repofile','file', 'repo' are specially formatted.
         // the rest is "folder-like" whether inside or outside of repo.
-        var _t = response_data.type
+        var _b, _t = response_data.type
         if (_t == 'repoitem' || _t == 'file' ) {
+            parent_jqobj.html(
+                $('#browse_base_tmpl').tmpl(
+                    response_data,
+                    {
+                        'get_full_application_uri':get_full_application_uri,
+                        'title':'File details'
+                    }
+                )
+            )
+            _b = $('#browse_content', parent_jqobj)
             response_data.data.data = response_data.data.data || ''
             response_data.meta['syntax_template'] = _syntax_highlighter_template_map[response_data.data.type.extension] || 'text'
             _b.html(
@@ -225,6 +234,16 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
             }
         } else if (_t == 'repo') {
             // render repo endpoints view.
+            parent_jqobj.html(
+                $('#browse_base_tmpl').tmpl(
+                    response_data,
+                    {
+                        'get_full_application_uri':get_full_application_uri,
+                        'title':'Repo summary'
+                    }
+                )
+            )
+            _b = $('#browse_content', parent_jqobj)
             _b.html(
                 $('#browse_content_repo_tmpl').tmpl(
                     response_data,
@@ -241,6 +260,16 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 [['data-time_stamp','desc']]
             )
         } else {
+            parent_jqobj.html(
+                $('#browse_base_tmpl').tmpl(
+                    response_data,
+                    {
+                        'get_full_application_uri':get_full_application_uri,
+                        'title':'Folder contents'
+                    }
+                )
+            )
+            _b = $('#browse_content', parent_jqobj)
             render_folder_listing(_b, response_data)
             sort_elements_by_attr(
                 _b,

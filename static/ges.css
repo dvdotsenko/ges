@@ -21,9 +21,16 @@
 }
 
 .path_crumb {
-    background: url(images/sep.png) no-repeat left center;
+/*    background: url(images/sep.png) no-repeat left center;*/
     padding-left: 7px;
+    margin-left: 0.3em;
+    margin-right: 0.3em;
 /*    text-transform: capitalize;*/
+}
+
+.last_path_crumb {
+    padding: 0;
+    margin-left: 0.3em;
 }
 
 .folder_list_item_inline {
@@ -38,6 +45,9 @@
 .folder_list_item_label {
     padding-left: 0.5em;
     padding-right: 0.5em;
+}
+.home_decor {
+    background: url(images/home.png) no-repeat left center;
 }
 .folder_decor {
     background: url(images/folder.png) no-repeat left center;
