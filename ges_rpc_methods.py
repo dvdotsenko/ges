@@ -258,13 +258,17 @@ class PathSummaryProducer(BaseRPCClass):
                         )
         if type(_t) == git.Blob:
             _size = _t.size
-            _mime = mimetypes.guess_type(_t.name, False)[0] or 'application/octet-stream'
+            _ext = os.path.splitext(_t.name)[1].strip('.')
+            if not _ext and _t.size < 64000:
+                _mime = 'text/plain'
+            else:
+                _mime = mimetypes.guess_type(_t.name, False)[0] or 'application/octet-stream'
             _r = (
                 'repoitem'
                 , {'type': {
                         'mimetype': _mime
                         ,'supermimetype': _mime.split('/',1)[0]
-                        ,'extension': os.path.splitext(_t.name)[1].strip('.') or 'txt'
+                        ,'extension': _ext
                         }
                     ,'name':_t.name
                     ,'size':_size
