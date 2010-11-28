@@ -336,7 +336,7 @@ class PathSummaryProducer(BaseRPCClass):
                 }
             )
 
-        for _e in _r.tags[-3:]:
+        for _e in _r.tags:
             # Hmm.. Tags have their own commits it seems.
             # Getting .id from tag gets an commit ID that does not
             # point to a real commit, at least with git-python lib.
@@ -350,6 +350,12 @@ class PathSummaryProducer(BaseRPCClass):
             _commit_data = _commits[_e.commit.id]
             self._repo_endpoints_helper(_commit_data, _e.commit)
             _commit_data['branches'].append(_e.name)
+
+        _e = _r.commit('HEAD')
+        _commit_data = _commits[_e.id]
+        if not _commit_data['id']:
+            self._repo_endpoints_helper(_commit_data, _e)
+            _commit_data['branches'].append('HEAD')
 
         _commits_list = [_commits[key] for key in _commits.keys()]
         _commits_list.sort(cmp=lambda a,b: cmp(a['time'],b['time']), reverse=True)
