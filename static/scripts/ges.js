@@ -47,6 +47,69 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         return location.href.substr(0,location.href.indexOf('\/#'))
     }
 
+    var git_hosting_providers_map = [
+        // git@gitorious.org:git_http_backend_py/git_http_backend_py.git
+        // http://git.gitorious.org/git_http_backend_py/git_http_backend_py.git
+        // git://gitorious.org/git_http_backend_py/git_http_backend_py.git
+        // translates commit's page into:
+        // http://gitorious.org/git_http_backend_py/git_http_backend_py/commit/2822ec527b0e23d64436e680668bdc7a9dea1809
+        // I.e. (a) ".git" is dropped. (b) "." replaced by "_"
+        {
+            'host_regex': 'gitoriousa.org',
+            'url_assembler': function (url, id, jqobj_to_update) {
+                var _trash
+                url = url.substr(url.indexOf('gitorious.org')+ 'gitorious.org/'.length, url.length)
+                try {url = url.trim()} catch (_trash){}
+                url = 'http://gitorious.org/' + url.replace(/.git$/,'').replace('.','_') + '/commit/' + id
+                jqobj_to_update.html('<a href="' + url + '">' + url + '</a>')
+            }
+        },
+        // git@github.com:dvdotsenko/git_http_backend.py.git
+        // https://dvdotsenko@github.com/dvdotsenko/git_http_backend.py.git
+        // git://github.com/dvdotsenko/git_http_backend.py.git
+        // translates commit URI to:
+        // httpS://github.com/dvdotsenko/git_http_backend.py/commit/c5e491e6f4f2def88b15db18b8e45697eab4663e
+        // I.e. (a) ".git" is dropped.
+        {
+            'host_regex': 'github.com',
+            'url_assembler': function (url, id, jqobj_to_update) {
+                var _trash
+                url = url.substr(url.indexOf('github.com')+ 'github.com/'.length, url.length)
+                try {url = url.trim()} catch (_trash){}
+                url = 'httpS://github.com/' + url.replace(/.git$/,'') + '/commit/' + id
+                jqobj_to_update.html('<a href="' + url + '">' + url + '</a>')
+            }
+        },
+        // If no compatible hosting provider is found, say so.
+        {
+            'host_regex': '',
+            'url_assembler': function (url, id, jqobj_to_update) {
+                jqobj_to_update.html('Cannot be determined.')
+            }
+        }
+    ]
+
+
+    function guess_remote_homepage(response_data, jqobj_to_update) {
+        // this function tries to guess the HTTP homepage for the commit
+        // based on git URI.
+        // at this time, detection of commit URIs for following Git hositng vendors
+        // is supported:
+        //  GitHub, Gitorious
+        // The guessing logic is not in any way officially blessed by the vendors,
+        // so expect frequent breakage caused by changes on vendors' side.
+        for (var i = 0, l = git_hosting_providers_map.length; i < l; i++) {
+            if (response_data.data.url.indexOf(git_hosting_providers_map[i].host_regex) > -1) {
+                git_hosting_providers_map[i].url_assembler(
+                    response_data.data.url,
+                    response_data.data.id,
+                    jqobj_to_update
+                )
+                i = l
+            }
+        }
+    }
+
     function render_folder_listing(parent_jqobj, response_data) {
         var i, _t, _di
             , _path_prefix = response_data.meta.path
@@ -275,10 +338,11 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 $('#browse_content_remotelink_tmpl').tmpl(
                     response_data,
                     {
-                        'get_full_application_uri':get_full_application_uri
+                        'get_full_application_uri':get_full_application_uri,
                     }
                 )
             )
+            guess_remote_homepage(response_data, $('#remotelink_homepage_uri', _b))
         } else {
             parent_jqobj.html(
                 $('#browse_base_tmpl').tmpl(
