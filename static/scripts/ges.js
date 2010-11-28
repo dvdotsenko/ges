@@ -55,7 +55,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         // http://gitorious.org/git_http_backend_py/git_http_backend_py/commit/2822ec527b0e23d64436e680668bdc7a9dea1809
         // I.e. (a) ".git" is dropped. (b) "." replaced by "_"
         {
-            'host_regex': 'gitoriousa.org',
+            'host_regex': 'gitorious.org',
             'url_assembler': function (url, id, jqobj_to_update) {
                 var _trash
                 url = url.substr(url.indexOf('gitorious.org')+ 'gitorious.org/'.length, url.length)
@@ -98,14 +98,25 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         //  GitHub, Gitorious
         // The guessing logic is not in any way officially blessed by the vendors,
         // so expect frequent breakage caused by changes on vendors' side.
-        for (var i = 0, l = git_hosting_providers_map.length; i < l; i++) {
-            if (response_data.data.url.indexOf(git_hosting_providers_map[i].host_regex) > -1) {
-                git_hosting_providers_map[i].url_assembler(
-                    response_data.data.url,
-                    response_data.data.id,
-                    jqobj_to_update
-                )
-                i = l
+
+        var _full_app_uri = get_full_application_uri()
+          , uri = response_data.data.url
+        // uri = _full_app_uri + '/asdf/qwer/zxvc.df'
+        if (uri.indexOf(_full_app_uri) > -1 ) {
+            // the submodule is hosted on our own, this vary server.
+            uri = uri.substr(_full_app_uri.length, uri.length)
+            uri = _full_app_uri + '/#browse' + uri
+            jqobj_to_update.html('<a href="' + uri + '">' + uri + '</a>')
+        } else {
+            for (var i = 0, l = git_hosting_providers_map.length; i < l; i++) {
+                if (uri.indexOf(git_hosting_providers_map[i].host_regex) > -1) {
+                    git_hosting_providers_map[i].url_assembler(
+                        uri,
+                        response_data.data.id,
+                        jqobj_to_update
+                    )
+                    i = l
+                }
             }
         }
     }
