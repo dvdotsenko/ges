@@ -401,8 +401,8 @@ class FuzzyPathHandler(BaseWSGIClass):
 
         try:
             data, _mimetype, size = self._get_path_contents(_p)
-        except PathBoundsError:
-            return self.canned_handlers(environ, start_response, '501')
+        except:
+            return self.canned_handlers(environ, start_response, '404')
 
         # TODO: wire up the time to commit. Until then, there will be no caching
         #  on web client. Ugh!
