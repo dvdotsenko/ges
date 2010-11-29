@@ -1,0 +1,9 @@
+INSTALL:
+See README file in the above ("doc") folder.
+
+RUN:
+1. Run the script with "--help" option to see the list of options and examples.
+	ges.py --help
+2. Run the same script with chosen options (or without any) to run the server.
+	ges.py
+(See console output for basic settings auto-picked by the server.)

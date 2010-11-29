@@ -7,11 +7,9 @@ These are *some* of the targeted scenarios:
 	- Apache mod_WSGI (*nix, Windows)
 	- Microsoft IIS 6,7.x (ISAPI_WSGI + cPython, NWSGI + IronPython)
 
-See individual folders under EXAMPLES folder for deployment instructions.
-
 General notes:
 1. This project uses git submodules. If you pull this project with git, 
-please, ensure that after you do the 'git clone' you do:
+please, ensure that after you do the 'git clone' you do in specific submodules too:
  git submodule init
  git submodule update
  
@@ -21,3 +19,24 @@ Please, ensure that running "git" in the console produces git executable output.
 On *nix-like systems, installing git package usually exposes that by default.
 On Windows, you have choice - cygwin or MSysGit. I prefer cygwin. Either way,
 make sure to add git.exe's folder to the PATH list.
+
+INSALLATION:
+
+Please, pick (cd to) some folder where GES's main folder will be placed.
+Open command line console and run the following 7 commands:
+
+git clone git://gitorious.org/ges/ges.git
+cd ges
+git submodule init
+git submodule update
+cd git_http_backend
+git submodule init
+git submodule update
+
+RUN:
+
+See individual folders under doc folder for deployment instructions.
+
+In it's simplest form, just try double-clicking the ges.py file and using
+the settings (url, port) auto-picked by the server and displayed in
+console output will be fine. Press Ctrl+C to stop the server.
