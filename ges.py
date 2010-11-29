@@ -168,29 +168,28 @@ class ShowVarsWSGIApp(object):
 
 if __name__ == "__main__":
     _help = r'''
-git_http_backend.py - Python-based server supporting regular and "Smart HTTP"
+ges.py - Git Enablement Server v1.0
 	
 Note only the folder that contains folders and object that you normally see
 in .git folder is considered a "repo folder." This means that either a
 "bare" folder name or a working folder's ".git" folder will be a "repo" folder
 discussed in the examples below.
 
-When "repo-auto-create on Push" is used, the server automatically creates "bare"
-repo folders.
+This server automatically creates "bare" repo folders on push.
 
 Note, the folder does NOT have to have ".git" in the name to be a "repo" folder.
 You can name bare repo folders whatever you like. If the signature (right files
 and folders are found inside) matches a typical git repo, it's a "repo."
 
 Options:
---path_prefix (Defaults to '.' - current directory)
+--content_path (Defaults to '.' - current directory)
 	Serving contents of folder path passed in. Accepts relative paths,
 	including things like "./../" and resolves them agains current path.
 
 	If you set this to actual .git folder, you don't need to specify the
 	folder's name on URI.
 
---repo_uri_marker (Defaults to '')
+--uri_marker (Defaults to '')
 	Acts as a "virtual folder" - separator between decorative URI portion
 	and the actual (relative to path_prefix) path that will be appended
 	to path_prefix and used for pulling an actual file.
@@ -211,33 +210,33 @@ Options:
 Examples:
 
 cd c:\myproject_workingfolder\.git
-c:\tools\git_http_backend\GitHttpBackend.py --port 80
+c:\tools\ges\ges.py --port 80
 	(Current path is used for serving.)
 	This project's repo will be one and only served directly over
 	 http://localhost/
 
 cd c:\repos_folder
-c:\tools\git_http_backend\GitHttpBackend.py 
+c:\tools\ges\ges.py
 	(note, no options are provided. Current path is used for serving.)
 	If the c:\repos_folder contains repo1.git, repo2.git folders, they 
 	become available as:
 	 http://localhost:8080/repo1.git  and  http://localhost:8080/repo2.git
 
-~/myscripts/GitHttpBackend.py --path_prefix "~/somepath/repofolder" --repo_uri_marker "myrepo"
+~/myscripts/ges.py --content_path "~/somepath/repofolder" --uri_marker "myrepo"
 	Will serve chosen repo folder as http://localhost/myrepo/ or
 	http://localhost:8080/does/not/matter/what/you/type/here/myrepo/
 	This "repo uri marker" is useful for making a repo server appear as a
 	part of some REST web application or make it appear as a part of server
 	while serving it from behind a reverse proxy.
 
-./GitHttpBackend.py --path_prefix ".." --port 80
-	Will serve the folder above the "git_http_backend" (in which 
-	GitHttpBackend.py happened to be located.) A functional url could be
-	 http://localhost/git_http_backend/GitHttpBackend.py
-	Let's assume the parent folder of git_http_backend folder has a ".git"
+./ges.py --content_path ".." --port 80
+	Will serve the folder above the "ges" (in which
+	ges.py happened to be located.) A functional url could be
+	 http://localhost/ges/ges.py
+	Let's assume the parent folder of ges folder has a ".git"
 	folder. Then the repo could be accessed as:
 	 http://localhost/.git/
-	This allows GitHttpBackend.py to be "self-serving" :)
+	This allows ges.py to be "self-serving" :)
 '''
     import sys
 
@@ -278,22 +277,24 @@ c:\tools\git_http_backend\GitHttpBackend.py
             command_options['uri_marker'])
         else:
             _s = 'not chosen.'
-            example_URI = 'http://localhost:%s/myrepo.git' % (command_options['port'])
+            example_URI = 'http://localhost:%s/' % (command_options['port'])
         print '''
 ===========================================================================
 Run this command with "--help" option to see available command-line options
 
-Starting git-http-backend server...
+Starting GES server...
 	Port: %s
 	Chosen repo folders' base file system path: %s
 	URI segment indicating start of git repo foler name is %s
 
-Example repo url would be:
+Application path:
     %s
+Example repo url would be:
+    %ssome/path/to/repo/folder
 
 Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
 ===========================================================================
-''' % (command_options['port'], command_options['content_path'], _s, example_URI)
+''' % (command_options['port'], command_options['content_path'], _s, example_URI,example_URI)
 
         # running with CherryPy's WSGI Server
         try:
