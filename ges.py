@@ -21,12 +21,8 @@ import os.path
 import os
 import sys
 
-path = os.path.abspath('.')
-sys.path.append(os.path.join(path, 'git_http_backend'))
-sys.path.append(os.path.join(path, 'gitpython', 'lib'))
-
 import git_http_backend
-from cherrypy import wsgiserver
+import wsgiserver
 import jsonrpc_wsgi_application as jrpc
 import ges_rpc_methods
 import fuzzy_path_handler
@@ -91,11 +87,7 @@ def assemble_ges_app(*args, **kw):
         options[_e] = os.path.abspath(options[_e].decode('utf8'))
     options['uri_marker'] = options['uri_marker'].decode('utf8')
     if not os.path.isfile(os.path.join(options['static_content_path'],'favicon.ico')):
-        if '__file__' in dir() and os.path.isfile(os.path.join(os.path.split(__file__)[0],'static','favicon.ico')):
-            options['static_content_path'] = os.path.join(os.path.split(__file__)[0],'static')
-            # TODO: this may still not be it. Fix.
-        else:
-            raise Exception('G.E.S.: Specified static content directory - "%s" - does not contain expected files. Please, provide correct "static_content_path" variable value.' % options['static_content_path'])
+        raise Exception('G.E.S.: Specified static content directory - "%s" - does not contain expected files. Please, provide correct "static_content_path" variable value.' % options['static_content_path'])
 
     # assembling JSONRPC WSGI app
     # it has two parts:
@@ -166,10 +158,10 @@ class ShowVarsWSGIApp(object):
         for key in sorted(environ.keys()):
             yield '%s = %s\n' % (key, unicode(environ[key]).encode('utf8'))
 
-if __name__ == "__main__":
+def run_with_command_line_input():
     _help = r'''
 ges.py - Git Enablement Server v1.0
-	
+
 Note only the folder that contains folders and object that you normally see
 in .git folder is considered a "repo folder." This means that either a
 "bare" folder name or a working folder's ".git" folder will be a "repo" folder
@@ -218,7 +210,7 @@ c:\tools\ges\ges.py --port 80
 cd c:\repos_folder
 c:\tools\ges\ges.py
 	(note, no options are provided. Current path is used for serving.)
-	If the c:\repos_folder contains repo1.git, repo2.git folders, they 
+	If the c:\repos_folder contains repo1.git, repo2.git folders, they
 	become available as:
 	 http://localhost:8080/repo1.git  and  http://localhost:8080/repo2.git
 
@@ -241,9 +233,8 @@ c:\tools\ges\ges.py
     import sys
 
     command_options = dict([
-        # ['content_path','.'],
-        ['content_path','c:\\tmp\\reposbase'],
-        ['static_content_path', './static'],
+        ['content_path','.'],
+        ['static_content_path', None],
         ['uri_marker',''],
         ['port', '8888'],
         ['devel', False]
@@ -258,12 +249,19 @@ c:\tools\ges\ges.py
             command_options[lastKey] = item.strip('"').strip("'")
             lastKey = None
 
+    if not command_options['static_content_path']:
+        print(dir())
+        if '__file__' in dir() and os.path.isfile(os.path.join(os.path.split(__file__)[0],'static','favicon.ico')):
+            command_options['static_content_path'] = os.path.join(os.path.split(__file__)[0],'static')
+        else:
+            raise Exception('G.E.S.: Specified static content directory - "%s" - does not contain expected files. Please, provide correct "static_content_path" variable value.' %  command_options['static_content_path'])
+
     if 'help' in command_options:
         print _help
     else:
         app = assemble_ges_app(**command_options)
-        
-        from cherrypy import wsgiserver
+
+        import wsgiserver
         httpd = wsgiserver.CherryPyWSGIServer(('127.0.0.1',int(command_options['port'])),app)
 #        from wsgiref import simple_server
 #        httpd = simple_server.make_server('127.0.0.1',int(command_options['port']),app)
@@ -287,14 +285,12 @@ Starting GES server...
 	Chosen repo folders' base file system path: %s
 	URI segment indicating start of git repo foler name is %s
 
-Application path:
+Application URI:
     %s
-Example repo url would be:
-    %ssome/path/to/repo/folder
 
 Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
 ===========================================================================
-''' % (command_options['port'], command_options['content_path'], _s, example_URI,example_URI)
+''' % (command_options['port'], os.path.abspath(command_options['content_path']), _s, example_URI,example_URI)
 
         # running with CherryPy's WSGI Server
         try:
@@ -308,3 +304,6 @@ Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
 #            httpd.serve_forever()
 #        except KeyboardInterrupt:
 #            pass
+
+if __name__ == "__main__":
+    run_with_command_line_input()
