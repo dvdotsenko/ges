@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import random
 import time
+import subprocess
 try:
     # 3.x style module
     import urllib.request as urlopenlib
@@ -13,10 +14,10 @@ except:
     # 2.x style module
     import urllib as urlopenlib
 
-import ges
-from cherrypy import wsgiserver
+sys.path.append('../.')
 
-import subprocess
+import ges
+import wsgiserver
 
 def set_up_server(remote_base_path):
     # choosing free port

@@ -22,7 +22,7 @@ import os
 import sys
 
 execpath = os.getcwd()
-sys.path.append(os.path.join(execpath, 'gitpython\lib'))
+sys.path.append('..')
 
 import unittest
 import ges_rpc_methods as grm
