@@ -158,9 +158,9 @@ class ShowVarsWSGIApp(object):
         for key in sorted(environ.keys()):
             yield '%s = %s\n' % (key, unicode(environ[key]).encode('utf8'))
 
-def run_with_command_line_input():
+def assisted_start(options):
     _help = r'''
-ges.py - Git Enablement Server v1.0
+ges.py - Git Enablement Server v1.1
 
 Note only the folder that contains folders and object that you normally see
 in .git folder is considered a "repo folder." This means that either a
@@ -174,122 +174,175 @@ You can name bare repo folders whatever you like. If the signature (right files
 and folders are found inside) matches a typical git repo, it's a "repo."
 
 Options:
---content_path (Defaults to '.' - current directory)
-	Serving contents of folder path passed in. Accepts relative paths,
-	including things like "./../" and resolves them agains current path.
+--content_path (Defaults to random temp folder)
+    Serving contents of folder path passed in. Accepts relative paths,
+    including things like "./../" and resolves them agains current path.
 
-	If you set this to actual .git folder, you don't need to specify the
-	folder's name on URI.
+    (If you set this to actual .git folder, you don't need to specify the
+    folder's name on URI as the git repo will be served at the root level
+    of the URI.)
+
+    If not specified, a random, temp folder is created in the OS-specific
+    temporary storage path. This folder will be NOT be deleted after
+    server exits unless the switch "--remove_temp" is used.
+
+--remove_temp (Defaults to False)
+    When --content_path is not specified, this server will create a folder
+    in a temporary file storage location that is OS-specific and will NOT
+    remove it after the server shuts down.
+    This switch, if included on command line, enables automatic removal of
+    the created folder and all of its contents.
 
 --uri_marker (Defaults to '')
-	Acts as a "virtual folder" - separator between decorative URI portion
-	and the actual (relative to path_prefix) path that will be appended
-	to path_prefix and used for pulling an actual file.
+    Acts as a "virtual folder" - separator between decorative URI portion
+    and the actual (relative to path_prefix) path that will be appended
+    to path_prefix and used for pulling an actual file.
 
-	the URI does not have to start with contents of repo_uri_marker. It can
-	be preceeded by any number of "virtual" folders.
-	For --repo_uri_marker 'my' all of these will take you to the same repo:
-		http://localhost/my/HEAD
-		http://localhost/admysf/mylar/zxmy/my/HEAD
-	If you are using reverse proxy server, pick the virtual, decorative URI
-	prefix / path of your choice. This hanlder will cut and rebase the URI.
+    the URI does not have to start with contents of repo_uri_marker. It can
+    be preceeded by any number of "virtual" folders.
+    For --repo_uri_marker 'my' all of these will take you to the same repo:
+        http://localhost/my/HEAD
+        http://localhost/admysf/mylar/zxmy/my/HEAD
+    If you are using reverse proxy server, pick the virtual, decorative URI
+    prefix / path of your choice. This hanlder will cut and rebase the URI.
 
-	Default of '' means that no cutting marker is used, and whole URI after
-	FQDN is used to find file relative to path_prefix.
+    Default of '' means that no cutting marker is used, and whole URI after
+    FQDN is used to find file relative to path_prefix.
 
---port (Defaults to 8080)
+--port (Defaults to 8888)
+
+--demo (Defaults to False)
+    You do not have to provide any arguments for this option. It's a switch.
+    If "--demo" is part of the command-line options, a sample tree of folders
+    with some repos will be extracted into the folder specified as content_path.
+
+    If --content_path was not specified (we use temp folder) and "--demo"
+    switch is present, we assume --remove_temp is on.
 
 Examples:
 
+ges.py
+    (no arguments)
+    A random temp folder is created on the file system and now behaves as the
+    root of the served git repos folder tree.
+
+ges.py --demo
+    This server is shipped with a small demo tree of Git repositories. This
+    command deploys that tree into a temp folder and deletes that temp folder
+    after the server is shut down.
+
+ges.py --content_path "~/somepath/repofolder" --uri_marker "myrepo"
+    Will serve chosen repo folder as http://localhost/myrepo/ or
+    http://localhost:8888/does/not/matter/what/you/type/here/myrepo/
+    This "repo uri marker" is useful for making a repo server appear as part of
+    a server applications structure while serving from behind a reverse proxy.
+
 cd c:\myproject_workingfolder\.git
-c:\tools\ges\ges.py --port 80
-	(Current path is used for serving.)
-	This project's repo will be one and only served directly over
-	 http://localhost/
-
-cd c:\repos_folder
-c:\tools\ges\ges.py
-	(note, no options are provided. Current path is used for serving.)
-	If the c:\repos_folder contains repo1.git, repo2.git folders, they
-	become available as:
-	 http://localhost:8080/repo1.git  and  http://localhost:8080/repo2.git
-
-~/myscripts/ges.py --content_path "~/somepath/repofolder" --uri_marker "myrepo"
-	Will serve chosen repo folder as http://localhost/myrepo/ or
-	http://localhost:8080/does/not/matter/what/you/type/here/myrepo/
-	This "repo uri marker" is useful for making a repo server appear as a
-	part of some REST web application or make it appear as a part of server
-	while serving it from behind a reverse proxy.
-
-./ges.py --content_path ".." --port 80
-	Will serve the folder above the "ges" (in which
-	ges.py happened to be located.) A functional url could be
-	 http://localhost/ges/ges.py
-	Let's assume the parent folder of ges folder has a ".git"
-	folder. Then the repo could be accessed as:
-	 http://localhost/.git/
-	This allows ges.py to be "self-serving" :)
+ges.py --port 80 --content_path '.'
+    This project's repo will be one and only served directly over
+    http://localhost/
 '''
-    import sys
 
-    command_options = dict([
-        ['content_path','.'],
-        ['static_content_path', None],
-        ['uri_marker',''],
-        ['port', '8888'],
-        ['devel', False]
-    ])
+#    options = dict([
+#        ['content_path',None],
+#        ['static_content_path', None],
+#        ['uri_marker',''],
+#        ['port', None],
+#        ['devel', False],
+#        ['demo',False],
+#        ['remove_temp',False]
+#    ])
 
-    lastKey = None
-    for item in sys.argv:
-        if item.startswith('--'):
-            command_options[item[2:]] = True
-            lastKey = item[2:]
-        elif lastKey:
-            command_options[lastKey] = item.strip('"').strip("'")
-            lastKey = None
+    # let's decide what port to serve on.
+    port = options['port']
+    if not port:
+        import socket
+        # let's see if we can reuse our preferred default of 8888
+        s = socket.socket()
+        try:
+            s.bind(('',8888))
+            ip, port = s.getsockname()
+        except:
+            pass
+        s.close()
+        del s
+        if not port:
+            # looks like our default of 8888 is already occupied.
+            # taking next available port.
+            s = socket.socket()
+            s.bind(('',8888))
+            ip, port = s.getsockname()
+            s.close()
+            del s
+    options['port'] = port
 
-    if not command_options['static_content_path']:
+    # next we determine if the static server contents folder is visible to us.
+    if not options['static_content_path'] or not os.path.isfile(
+                os.path.join(
+                    options['static_content_path'],
+                    'static',
+                    'favicon.ico'
+                    )):
         if sys.path[0] and os.path.isfile(os.path.join(sys.path[0],'static','favicon.ico')):
-            command_options['static_content_path'] = os.path.join(sys.path[0],'static')
+            options['static_content_path'] = os.path.join(sys.path[0],'static')
         else:
-            raise Exception('G.E.S.: Specified static content directory - "%s" - does not contain expected files. Please, provide correct "static_content_path" variable value.' %  command_options['static_content_path'])
+            raise Exception('G.E.S.: Specified static content directory - "%s" - does not contain expected files. Please, provide correct "static_content_path" variable value.' %  options['static_content_path'])
 
+    # now we pick a random temp folder for Git folders tree if none were specified.
+    if options['content_path']:
+        CONTENT_PATH_IS_TEMP = False
+    else:
+        import tempfile
+        import shutil
+        CONTENT_PATH_IS_TEMP = True
+        options['content_path'] = tempfile.mkdtemp()
 
+    if options['demo']:
+        import zipfile
+        demo_repos_zip = os.path.join(sys.path[0],'test','sample_tree_of_repos_v2.zip')
+        try:
+            zipfile.ZipFile(demo_repos_zip).extractall(options['content_path'])
+        except:
+            pass
 
-    if 'help' in command_options:
+    if 'help' in options:
         print _help
     else:
-        app = assemble_ges_app(**command_options)
+        app = assemble_ges_app(**options)
 
         import wsgiserver
-        httpd = wsgiserver.CherryPyWSGIServer(('127.0.0.1',int(command_options['port'])),app)
+        httpd = wsgiserver.CherryPyWSGIServer(('127.0.0.1',int(options['port'])),app)
 
-        if command_options['uri_marker']:
-            _s = '"/%s/".' % command_options['uri_marker']
+        if options['uri_marker']:
+            _s = '"/%s/".' % options['uri_marker']
             example_URI = '''http://localhost:%s/whatever/you/want/here/%s/myrepo.git
     (Note: "whatever/you/want/here" cannot include the "/%s/" segment)''' % (
-            command_options['port'],
-            command_options['uri_marker'],
-            command_options['uri_marker'])
+            options['port'],
+            options['uri_marker'],
+            options['uri_marker'])
         else:
             _s = 'not chosen.'
-            example_URI = 'http://localhost:%s/' % (command_options['port'])
+            example_URI = 'http://localhost:%s/' % (options['port'])
         print '''
 ===========================================================================
 Run this command with "--help" option to see available command-line options
 
-Starting GES server...
-	Port: %s
-	Chosen repo folders' base file system path: %s
-	URI segment indicating start of git repo foler name is %s
+Chosen repo folders' base file system path:
+    %s
+
+Starting GES server on port %s
+
+URI segment indicating start of git repo foler name is %s
 
 Application URI:
     %s
 
 Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
 ===========================================================================
-''' % (command_options['port'], os.path.abspath(command_options['content_path']), _s, example_URI)
+''' % (os.path.abspath(options['content_path']),
+        options['port'],
+        _s,
+        example_URI)
 
         # running with CherryPy's WSGI Server
         try:
@@ -298,6 +351,28 @@ Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
             pass
         finally:
             httpd.stop()
+            if (CONTENT_PATH_IS_TEMP and options['remove_temp']) or (CONTENT_PATH_IS_TEMP and options['demo']):
+                shutil.rmtree(options['content_path'], True)
 
 if __name__ == "__main__":
-    run_with_command_line_input()
+
+    options = dict([
+        ['content_path',None],
+        ['static_content_path', None],
+        ['uri_marker',''],
+        ['port', None],
+        ['devel', False],
+        ['demo',False],
+        ['remove_temp',False]
+    ])
+    # simple command-line options parser that works only with '--option ["va lue"]'
+    lastKey = None
+    for item in sys.argv:
+        if item.startswith('--'):
+            options[item[2:]] = True
+            lastKey = item[2:]
+        elif lastKey:
+            options[lastKey] = item.strip('"').strip("'")
+            lastKey = None
+
+    assisted_start(options)
