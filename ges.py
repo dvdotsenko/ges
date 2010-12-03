@@ -250,11 +250,12 @@ c:\tools\ges\ges.py
             lastKey = None
 
     if not command_options['static_content_path']:
-        print(dir())
-        if '__file__' in dir() and os.path.isfile(os.path.join(os.path.split(__file__)[0],'static','favicon.ico')):
-            command_options['static_content_path'] = os.path.join(os.path.split(__file__)[0],'static')
+        if sys.path[0] and os.path.isfile(os.path.join(sys.path[0],'static','favicon.ico')):
+            command_options['static_content_path'] = os.path.join(sys.path[0],'static')
         else:
             raise Exception('G.E.S.: Specified static content directory - "%s" - does not contain expected files. Please, provide correct "static_content_path" variable value.' %  command_options['static_content_path'])
+
+
 
     if 'help' in command_options:
         print _help
@@ -263,8 +264,6 @@ c:\tools\ges\ges.py
 
         import wsgiserver
         httpd = wsgiserver.CherryPyWSGIServer(('127.0.0.1',int(command_options['port'])),app)
-#        from wsgiref import simple_server
-#        httpd = simple_server.make_server('127.0.0.1',int(command_options['port']),app)
 
         if command_options['uri_marker']:
             _s = '"/%s/".' % command_options['uri_marker']
@@ -290,7 +289,7 @@ Application URI:
 
 Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
 ===========================================================================
-''' % (command_options['port'], os.path.abspath(command_options['content_path']), _s, example_URI,example_URI)
+''' % (command_options['port'], os.path.abspath(command_options['content_path']), _s, example_URI)
 
         # running with CherryPy's WSGI Server
         try:
@@ -299,11 +298,6 @@ Use Keyboard Interrupt key combination (usually CTRL+C) to stop the server
             pass
         finally:
             httpd.stop()
-#        # running with cPython's builtin WSGIREF
-#        try:
-#            httpd.serve_forever()
-#        except KeyboardInterrupt:
-#            pass
 
 if __name__ == "__main__":
     run_with_command_line_input()
