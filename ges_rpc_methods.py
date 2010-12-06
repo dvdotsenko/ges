@@ -38,8 +38,8 @@ mimetypes.add_type('text/plain','.cs')
 
 class BaseRPCClass(object):
 
-    def __init__(self, base_path):
-        self.base_path = os.path.abspath(base_path)
+    def __init__(self, content_path):
+        self.base_path = os.path.abspath(content_path)
         self.base_path_len = len(self.base_path)
         self.git_folder_signature = set(['head', 'info', 'objects', 'refs'])
 
@@ -74,14 +74,14 @@ class BaseRPCClass(object):
         _full_path = os.path.abspath(
             os.path.join(
                 self.base_path,
-                relative_path.decode('utf8').strip('/').strip('\\')
+                relative_path.decode('utf8').strip('/\\')
                 )
             )
         if not _full_path.startswith(self.base_path):
             raise PathUnfitError('Path is outside of allowed range.')
         # note, on windows, this path will be delimited with '\' not '/'
         # TODO: Decide if we want to replace the slashes.
-        return _full_path[self.base_path_len:].strip('/').strip('\\').replace('\\','/')
+        return _full_path[self.base_path_len:].strip('/\\').replace('\\','/')
 
     def _find_repo_in_path(self, relative_path):
         '''Takes a path relative to base path and tries to
@@ -485,7 +485,23 @@ class PathSummaryProducer(BaseRPCClass):
                 'meta':{'path':_p}
                 }
 
-def assemble_methods_list(path_prefix, *args, **kw):
+class RepoControl(BaseRPCClass):
+    def set_description(self, path, text):
+        _p = self._sanitize_path(path)
+        _repo_path, _unconsumed_path = self._find_repo_in_path(_p)
+        if _repo_path == None or _unconsumed_path:
+            raise PathUnfitError('Requested path does not support alterations to repository.')
+        else:
+            _r = git.Repo(os.path.join(self.base_path, _repo_path))
+            _r.description = text
+            return {
+                'type':'repocontrol.setdescription',
+                'data':r.description,
+                'meta':{'path':_p}
+                }
+
+def assemble_methods_list(content_path, *args, **kw):
     return [
-        ('browser.path_summary',PathSummaryProducer(path_prefix).get_path_summary)
+        ('browser.path_summary',PathSummaryProducer(content_path).get_path_summary),
+        ('repocontrol.setdescription',RepoControl(content_path).set_description)
         ]

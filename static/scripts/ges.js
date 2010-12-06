@@ -270,6 +270,44 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         response_data['meta']['path_sections'] = _parent_links
     }
 
+    function make_editable(jqobj, contents_changed_callback) {
+        // path - A string with the path to the repo, relative to content_path.
+        // rpc_call_name - A string with name of the RPC function that
+        //  handles storage of changed data.
+
+        jqobj.bind(
+            'click',
+            {'contents_changed_callback':contents_changed_callback},
+            function (event)
+            {
+                jqobj.hide()
+                var original_text = jqobj.text()
+                  , ta = $('<textarea class="bodylike_text">'+ original_text +'</textarea>')
+                ta.insertAfter(jqobj).elastic().focus().bind(
+                    'blur',
+                    {
+                        'original_text':original_text,
+                        'original_jqobj': jqobj,
+                        'contents_changed_callback':event.data.contents_changed_callback
+                    },
+                    function (event){
+                        var _ta = $(this)
+                          , _jqobj = event.data.original_jqobj
+                          , _txt = this.value
+                        if (event.data.original_text != _txt) {
+                            event.data.original_jqobj.text(_txt)
+                            event.data.contents_changed_callback.call(
+                                event.data.original_jqobj,
+                                _txt
+                            )
+                        }
+                        _ta.remove()
+                        _jqobj.show()
+                    }
+                )
+            })
+    }
+
     function render_browser_content(response_data, parent_jqobj) {
         // adding path crumbs to the data and rendering just the crumbs
         add_path_crumbs(response_data)
@@ -327,6 +365,16 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                         'get_full_application_uri':get_full_application_uri
                     }
                 )
+            )
+            make_editable(
+                $('pre'),
+                function (new_text){
+                    $.JSONRPC.call(
+                        '/rpc/'
+                        ,'repocontrol.setdescription'
+                        ,[response_data.meta.path, new_text]
+                    )
+                }
             )
             sort_elements_by_attr(
                 $('.repo_endpoints_table tbody', _b),
@@ -444,9 +492,8 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         }
     });
     this.get(/\#viewer\/(.*)/, function() {
-        document.asdf = this.params;
-        alert(this.params['splat'].length)
-        alert(this.params['splat']);
+        console.log(this.params)
+        console.log(this.params['splat'])
     });
     });
     $(function() {

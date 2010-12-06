@@ -9,6 +9,7 @@
     <script src="static/scripts/sammy/sammy-0.6.2.min.js" type="text/javascript"></script>
     <script src="static/scripts/jquery.tmpl.js" type="text/javascript"></script>
     <script src="static/scripts/jquery.jsonrpc.js" type="text/javascript"></script>
+    <script src="static/scripts/jquery.elastic.min.js" type="text/javascript"></script>
     <script src="static/scripts/ges.js" type="text/javascript"></script>
 </head>
 <body>
@@ -100,7 +101,9 @@
     <div class="properties_table">
         <div class="table_row">
             <span class="table_cell property_label">Description</span>
-            <span class="table_cell property_value">{{= data.description}}</span>
+            <span class="table_cell property_value">
+                <pre class="bodylike_text">{{= data.description}}</pre>
+            </span>
         </div>
         <div class="table_row">
             <span class="table_cell property_label">Clone, push URI</span>
