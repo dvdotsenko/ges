@@ -482,7 +482,7 @@ class PathSummaryProducer(BaseRPCClass):
             return {
                 'type':data_type,
                 'data':data,
-                'meta':{'path':_p}
+                'meta':{'path':_p, 'repo_path': _repo_path}
                 }
 
 class RepoControl(BaseRPCClass):

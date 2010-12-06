@@ -412,7 +412,10 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                     }
                 )
             )
-            _b = $('#browse_content', parent_jqobj)
+            $('#browse_content', parent_jqobj).html(
+                $('#browse_content_folderlist_tmpl').tmpl(response_data)
+            )
+            _b = $('#browse_content_folderlist', parent_jqobj)
             render_folder_listing(_b, response_data)
             sort_elements_by_attr(
                 _b,

@@ -96,20 +96,19 @@
         <p class="meta">Cached data. Updated {{= Math.round(((new Date()).getTime() - meta.record_time)/600)/100 }} minutes ago. Click browser's reload button (or CTRL+R) to refresh the cache.</p>
     {{/if}}
 </script>
-<!-- Browse content Repo summary-specific - Child of Browse Base template -->
-<script id="browse_content_repo_tmpl" type="text/x-jquery-tmpl">
-    <div class="properties_table">
-        <div class="table_row">
-            <span class="table_cell property_label">Description</span>
-            <span class="table_cell property_value">
-                <pre class="bodylike_text">{{= data.description}}</pre>
-            </span>
-        </div>
-        <div class="table_row">
-            <span class="table_cell property_label">Clone, push URI</span>
-            <span class="table_cell property_value">{{= $item.get_full_application_uri() + meta.path }}</span>
-        </div>
+
+<script id="browse_content_folderlist_tmpl" type="text/x-jquery-tmpl">
+    <div id="browse_content_folderlist"></div>
+    {{if (meta.repo_path)}}
+    <div class="spacer"></div>
+    <div class="downloadable">
+        <a href="{{= meta.path}}">Download folder as zip file</a>
     </div>
+    <div class="spacer"></div>
+    {{/if}}
+</script>
+
+<script id="browse_content_repo_tmpl" type="text/x-jquery-tmpl">
     {{if (data.endpoints.length > 0)}}
     <table class="repo_endpoints_table">
         <thead>
@@ -153,6 +152,18 @@
         </tbody>
     </table>
     {{/if}}
+    <div class="properties_table">
+        <div class="table_row">
+            <span class="table_cell property_label">Description</span>
+            <span class="table_cell property_value">
+                <pre class="bodylike_text">{{= data.description}}</pre>
+            </span>
+        </div>
+        <div class="table_row">
+            <span class="table_cell property_label">Clone, push URI</span>
+            <span class="table_cell property_value">{{= $item.get_full_application_uri() + meta.path }}</span>
+        </div>
+    </div>
 </script>
 
 <script id="browse_content_repoitem_tmpl" type="text/x-jquery-tmpl">

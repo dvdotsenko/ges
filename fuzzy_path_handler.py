@@ -18,25 +18,10 @@ You should have received a copy of the GNU General Public License
 along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import io
-import os.path
 import os
-import sys
-if '__file__' in dir():
-    path = os.path.split(__file__)[0]
-else:
-    path = os.path.abspath('.')
-sys.path.append(os.path.join(path, 'git_http_backend'))
-sys.path.append(os.path.join(path, 'gitpython', 'lib'))
-import git_http_backend
 import git
-import ges_rpc_methods
-
 from wsgiref.headers import Headers
-
-# needed for WSGI Selector
-import re
-import urlparse
-from collections import defaultdict
+import urllib
 
 # needed for static content server
 import time
@@ -44,6 +29,8 @@ import email.utils
 import mimetypes
 mimetypes.add_type('application/x-git-packed-objects-toc','.idx')
 mimetypes.add_type('application/x-git-packed-objects','.pack')
+
+import tempfile
 
 class PathBoundsError(Exception):
     pass
@@ -162,12 +149,12 @@ class FuzzyPathHandler(BaseWSGIClass):
         _full_path = os.path.abspath(
             os.path.join(
                 self.base_path,
-                relative_path.decode('utf8').strip('/').strip('\\')
+                relative_path.decode('utf8').strip('/\\')
                 )
             )
         if not _full_path.startswith(self.base_path):
             raise PathUnfitError('Path is outside of allowed range.')
-        return _full_path[self.base_path_len:].strip('/').strip('\\').replace('\\','/')
+        return _full_path[self.base_path_len:].strip('/\\').replace('\\','/')
 
     def _find_repo_in_path(self, relative_path):
         '''Takes a path relative to base path and tries to
@@ -274,52 +261,68 @@ class FuzzyPathHandler(BaseWSGIClass):
                             )
                         )
         if type(_t) == git.Blob:
-#            if _t.size < 64000: # add: and mime_type is some sort of plain-text or image.
-#                return 'repoitem', {'mimetype':_t.mime_type,'name':_t.name,'size':_t.size,'data':_t.data}
-#            else:
-            return _t.data, len(_t.data)
+            # returning: dataIO, mimetype, size, recommended file name.
+            return (
+                    io.BytesIO(_t.data)
+                    ,mimetypes.guess_type(obj_path, False)[0] or 'application/octet-stream'
+                    ,len(_t.data)
+                    ,os.path.split(obj_path)[1]
+                    )
+        elif type(_t) == git.Tree:
+            _trash, _p = os.path.split(repo_path)
+            if _p:
+                name_elements = [_p, commit_name]
+            else:
+                name_elements = [commit_name]
+            # the tempfile use is a bit of trickery.
+            # we need temp file because it self-destructs when .close()
+            # yet, we need git command like to write to it from outside of python.
+            # what we do is create the temp file, get name, ask
+            # git to put data into that file name in the back
+            # When we read() we read from start of what used to be empty file.
+            # If git is successful there will be data in it.
+            # If zip download stops working, then either the underlying
+            # python interpreter is weird (IronPython, Jython) or
+            # the tempfile implemnetation had changed to cache the "empty"
+            # state of the temp file.
+            _tf = tempfile.NamedTemporaryFile(
+                suffix = '_%s.zip' % '_'.join(name_elements)
+                , delete = True
+                )
+            try:
+                _trash = git.Repo(
+                    os.path.join(self.base_path,repo_path)
+                    ).git.archive(
+                        commit_name
+                        ,obj_path
+                        ,output = _tf.name
+                        ,format = "zip"
+                        ,prefix = "%s/" % '/'.join(name_elements)
+                        )
+                _tf.seek(0) # this is just in case the TF wrapper cached position / old data.
+            except:
+                raise PathUnfitError(
+                            'Requested object "%s" cannot be served in zip format.' % (
+                                '/'.join(name_elements)
+                                )
+                            )
+            # returning:
+            #   data_IO_obj,
+            #   mimetype,
+            #   size in bytes. None for size is OK. We send Chunked.
+            #   recommended file name.
+            return (
+                    _tf
+                    , 'application/zip'
+                    , None
+                    , '%s.zip' % '_'.join(name_elements)
+                    )
         else:
             raise PathUnfitError(
                         'Requested object "%s" cannot be served in raw format.' % (
                             '/'.join([commit_name,obj_path])
                             )
                         )
-
-    def _get_repo_object_general(self, repo_path, obj_path):
-        '''Entry point method used for getting arbitrary item (tree, blob) from
-        a repo.
-
-        @param repo_path A string with relative path (against self.base_path)
-            to the repo folder. This is already sanitized. Example:
-            "projects/super/duperproject.git"
-
-        @param obj_path A string that points to inter-repo virtual objects like
-            commits, tags, branches, folders, files. Example:
-            "master/folder/file.c"
-
-        @returns binary IO obj with contents, mimetime, size (may be null)
-        '''
-        # obj_path may point to:
-        # 1. file inside of a commit (blob)
-        # 2. folder inside of a commit (tree)
-        # 3. commit (tag, branch, plain commit)
-        # 4. nowhere (i.e. = '') which we interpret as "give repo summary"
-        # 5. some object that does not exist > Exception.
-
-        # thus, we interpret all obj_path to be like so
-        # "[branch|tag|commit][/[resource path within the commit]]"
-        # We don't really care if a _commit is a branch, tag, or commit id,
-        # because we serve the "tree" view for all.
-        if not obj_path:
-            # means we need to pick default commit.
-            obj_path = 'HEAD'
-        _vpath = obj_path.strip('/').split('/',1)
-        if len(_vpath) == 2:
-            # point to commit + object within a commit.
-            return self._get_repo_item_contents(repo_path, _vpath[0], _vpath[1])
-        else:
-            # points to commit's root tree.
-            return self._get_repo_item_contents(repo_path, _vpath[0])
 
     def _get_path_contents(self,relative_path):
         '''Takes a relative path, sanitizes and returns adequate
@@ -363,6 +366,7 @@ class FuzzyPathHandler(BaseWSGIClass):
         # _unconsumed_path = loosely, a part of path that is not
         #         actually present on file system.
         _repo_path, _unconsumed_path = self._find_repo_in_path(_p)
+
         if _repo_path == None:
             raise PathUnfitError('Requested path may not be viewed.')
 #            if _unconsumed_path:
@@ -374,13 +378,28 @@ class FuzzyPathHandler(BaseWSGIClass):
 #                # system and points to a folder.
 #                # Returns tuple of "type", contents IO obj, sanitized path.
 #                return ('folder', _dir_contents(_p), _p)
+
+        # repo is on the path. _unconsumed, thus, points to virtual objects
+        # (commits, files, folders) inside of the repo
+        # this call may return either file- or folder-specific content.
+
+        # we interpret all obj_path to be like so
+        # "[branch|tag|commit][/[resource path within the commit]]"
+        # We don't really care if a _commit is a branch, tag, or commit id,
+        # because we serve the "element of a tree" view for all.
+        # in some cases the "tree" view is a zip of contents. In others,
+        # it the contents of a file.
+        if not _unconsumed_path:
+            # means we need to pick default commit.
+            _unconsumed_path = 'HEAD'
+        _vpath = _unconsumed_path.strip('/').split('/',1)
+        if len(_vpath) == 2:
+            # point to commit + object within a commit.
+            # returning : dataIOobj, _mimetype, size_in_bytes
+            return self._get_repo_item_contents(_repo_path, _vpath[0], _vpath[1])
         else:
-            # repo is on the path. _unconsumed, thus, points to virtual objects
-            # (commits, files, folders) inside of the repo
-            # this call may return either file- or folder-specific content.
-            _mimetype = mimetypes.guess_type(_unconsumed_path, False)[0] or 'application/octet-stream'
-            data, size = self._get_repo_object_general(_repo_path, _unconsumed_path)
-            return (data, _mimetype, size)
+            # points to commit's root tree.
+            return self._get_repo_item_contents(_repo_path, _vpath[0])
 
     def __call__(self, environ, start_response):
         selector_matches = (environ.get('wsgiorg.routing_args') or ([],{}))[1]
@@ -400,7 +419,7 @@ class FuzzyPathHandler(BaseWSGIClass):
         _p = full_path[len(_pp):].strip('/\\')
 
         try:
-            data, _mimetype, size = self._get_path_contents(_p)
+            file_like, _mimetype, _size, _file_name = self._get_path_contents(_p)
         except:
             return self.canned_handlers(environ, start_response, '404')
 
@@ -422,7 +441,47 @@ class FuzzyPathHandler(BaseWSGIClass):
         if if_none and (if_none == '*' or etag in if_none):
             return self.canned_handlers(environ, start_response, 'not_modified', headers)
 
+        if _size != None:
+            headersIface['Content-Length'] = str(_size)
         headersIface['Content-Type'] = _mimetype
-        file_like = io.BytesIO(data)
+        if _file_name:
+            # See:
+            #  RFC5987
+            #   http://greenbytes.de/tech/webdav/rfc5987.html
+            #  Use of the Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP)
+            #   http://datatracker.ietf.org/doc/draft-ietf-httpbis-content-disp/?include_text=1
+            #  Percent-quoting in Python:
+            #   http://stackoverflow.com/questions/1695183/how-to-percent-encode-url-parameters-in-python
+            #   http://stackoverflow.com/questions/1361604/how-to-encode-utf8-filename-for-http-headers-python-django
+            #  Browser support for RFC5987
+            #   http://greenbytes.de/tech/tc2231/#attfnboth
+            # Note:
+            #  we are using "safe" chars as defined per RFC5987
+            _efn = urllib.quote(
+                _file_name.encode('utf8')
+                , "!#$%&+-^_`{}~"
+                )
+            if _file_name == _efn:
+                # no funky or unicode chars in the name
+                headersIface['Content-Disposition'] = (
+                    'attachment; filename="%s"' % _file_name
+                    ).encode('utf8')
+                    
+            else:
+                # providing both, crippled Latin-1 and utf8-encoded file names.
+                # it's possible that the difference is just a space in the file's name.
+                _cfn = []
+                for c in _file_name:
+                    if ord(c) > 255:
+                        _cfn.append('_')
+                    else:
+                        _cfn.append(c)
+                headersIface['Content-Disposition'] = (
+                    'attachment; filename="%s"; filename*=utf-8\'\'%s' % (
+                        ''.join(_cfn)
+                        ,_efn
+                        )
+                    ).encode('utf8')
+                    
 
         return self.package_response(file_like, environ, start_response, headers)

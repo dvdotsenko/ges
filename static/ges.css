@@ -67,8 +67,8 @@
 }
 
 .repo_endpoints_table {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .repo_endpoints_table th {
@@ -106,11 +106,13 @@
     padding: 0.25em;
     margin: 0.25em;
     color: black;
-    background: yellowgreen;
+    background: #eafcd3 ;
     border-style: solid;
-    border-color: darkgreen;
+    border-color: gray;
     border-width: thin;
 /*    text-align: center;*/
+    -moz-border-radius: .3em;
+    border-radius: .3em;
 }
 
 .downloadable a {
@@ -174,4 +176,9 @@ h4 {
     margin: 0;
     padding: 0;
     width: 100%;
+}
+
+#browse_content_folderlist {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
 }
