@@ -270,7 +270,7 @@ ges.py --port 80 --content_path '.'
             # looks like our default of 8888 is already occupied.
             # taking next available port.
             s = socket.socket()
-            s.bind(('',8888))
+            s.bind(('',0))
             ip, port = s.getsockname()
             s.close()
             del s
@@ -311,7 +311,7 @@ ges.py --port 80 --content_path '.'
         app = assemble_ges_app(**options)
 
         import wsgiserver
-        httpd = wsgiserver.CherryPyWSGIServer(('127.0.0.1',int(options['port'])),app)
+        httpd = wsgiserver.CherryPyWSGIServer(('0.0.0.0',int(options['port'])),app)
 
         if options['uri_marker']:
             _s = '"/%s/".' % options['uri_marker']
