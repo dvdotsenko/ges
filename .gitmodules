@@ -1,6 +1,0 @@
-[submodule "git_http_backend"]
-	path = git_http_backend
-	url = git://gitorious.org/git_http_backend_py/git_http_backend_py.git
-[submodule "gitpython"]
-	path = gitpython
-	url = git://gitorious.org/git-python/mainline.git
