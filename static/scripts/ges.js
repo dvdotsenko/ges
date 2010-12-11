@@ -61,7 +61,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 url = url.substr(url.indexOf('gitorious.org')+ 'gitorious.org/'.length, url.length)
                 try {url = url.trim()} catch (_trash){}
                 url = 'http://gitorious.org/' + url.replace(/.git$/,'').replace('.','_') + '/commit/' + id
-                jqobj_to_update.html('<a href="' + url + '">' + url + '</a>')
+                jqobj_to_update.html('<a href="' + url + '" target="_blank">' + url.substr(7,50) + '...</a>')
             }
         },
         // git@github.com:dvdotsenko/git_http_backend.py.git
@@ -76,8 +76,8 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 var _trash
                 url = url.substr(url.indexOf('github.com')+ 'github.com/'.length, url.length)
                 try {url = url.trim()} catch (_trash){}
-                url = 'httpS://github.com/' + url.replace(/.git$/,'') + '/commit/' + id
-                jqobj_to_update.html('<a href="' + url + '">' + url + '</a>')
+                url = 'https://github.com/' + url.replace(/.git$/,'') + '/commit/' + id
+                jqobj_to_update.html('<a href="' + url + '" target="_blank">' + url.substr(8,50) + '...</a>')
             }
         },
         // If no compatible hosting provider is found, say so.
@@ -106,7 +106,9 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
             // the submodule is hosted on our own, this vary server.
             uri = uri.substr(_full_app_uri.length, uri.length)
             uri = _full_app_uri + '/#browse' + uri
-            jqobj_to_update.html('<a href="' + uri + '">' + uri + '</a>')
+            jqobj_to_update.html(
+                '<a href="' + uri + '" target="_blank">' + url.substr(0,58) + '...</a>'
+            )
         } else {
             for (var i = 0, l = git_hosting_providers_map.length; i < l; i++) {
                 if (uri.indexOf(git_hosting_providers_map[i].host_regex) > -1) {

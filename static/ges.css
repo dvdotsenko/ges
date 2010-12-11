@@ -13,6 +13,12 @@
     padding-top: 0.5em;
     padding-bottom: 0.5em;
 }
+
+.wrap_everything {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
 .path_crumbs {
     padding-top: 0.2em;
     padding-bottom: 0.2em;

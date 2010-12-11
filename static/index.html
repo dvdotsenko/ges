@@ -84,9 +84,7 @@
 <!-- It displays path crumbs - element common to all content views.-->
 <script id="browse_base_tmpl" type="text/x-jquery-tmpl">
     <h2>{{= $item.title }}</h2>
-    <div class="path_crumbs">
-{{if (meta.path_first_section)}}<span class="path_crumb home_decor"><a href="#browse{{= meta.path_first_section[1]}}">{{= meta.path_first_section[0]}}</a></span>/{{/if}}{{each(i,section) meta.path_sections}}<span class="path_crumb folder_decor"><a href="#browse{{= section[1]}}">{{= section[0]}}</a></span>/{{/each}}<span class="last_path_crumb">{{= meta.path_last_section}}</span>
-    </div>
+<div class="path_crumbs wrap_everything">{{if (meta.path_first_section)}}<span class="path_crumb home_decor"><a href="#browse{{= meta.path_first_section[1]}}">{{= meta.path_first_section[0]}}</a></span>/{{/if}}{{each(i,section) meta.path_sections}}<span class="path_crumb folder_decor"><a href="#browse{{= section[1]}}">{{= section[0]}}</a></span>/{{/each}}<span class="last_path_crumb">{{= meta.path_last_section}}</span></div>
     <div id="browse_content">
     {{if (!data.length)}}
         <p class="meta">Folder is empty.</p>
@@ -145,7 +143,7 @@
                 </td>
                 <td class="has_hoverable">
                     <a href="#browse{{= meta.path + '/' + endpoint.id}}">{{= endpoint.id.slice(0,8)}}..<span>{{= endpoint.time}}<br>{{= endpoint.summary}}</span></a>
-                    &nbsp;by<a href="mailto:{{= endpoint.author_email}}?subject={{= escape('Re: /' + meta.path + '/' + endpoint.id) }}"> {{= endpoint.author}}</a>
+                    &nbsp;by<a href="mailto:{{= endpoint.author_email}}?subject={{= escape('Re: ' + meta.path + '/' + endpoint.id) }}"> {{= endpoint.author}}</a>
                 </td>
             </tr>
             {{/each}}
@@ -194,7 +192,7 @@
         </div>
         <div class="table_row">
             <span class="table_cell property_label">Remote resource URI</span>
-            <span class="table_cell property_value">{{= data.url}}</span>
+            <span class="table_cell property_value wrap_everything">{{= data.url}}</span>
         </div>
         <div class="table_row">
             <span class="table_cell property_label">Remote resource's commit ID</span>
@@ -202,7 +200,7 @@
         </div>
         <div class="table_row">
             <span class="table_cell property_label">Link to commit's home page</span>
-            <span id="remotelink_homepage_uri" class="table_cell property_value">Guessing...</span>
+            <span id="remotelink_homepage_uri" class="table_cell property_value wrap_everything">Guessing...</span>
         </div>
     </div>
 </script>
