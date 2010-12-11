@@ -326,8 +326,27 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 )
             )
             _b = $('#browse_content', parent_jqobj)
+            var _syntax_template = _syntax_highlighter_template_map[response_data.data.type.extension]
+            if (!_syntax_template && response_data.data.data) {
+                // Ugh!!!! File has no extension, yet body is present, so it was
+                // deemed by the server to be Text-like.
+                // Let's see inside and guess what type it is
+                if (response_data.data.data.substr(0,2) == '#!') {
+                    // do we smell hash-bang?
+                    _first_line = ' ' + response_data.data.data.substr(2,50)
+                        .replace('\r','\n')
+                        .split('\n',1)[0]
+                        .replace(/\/|\\/, ' ') + ' '
+                    _m = _first_line.match(/ (python|perl|ruby|php|bash) /i)
+                    if (_m) {
+                        _syntax_template = _syntax_highlighter_template_map[_m[1]]
+                    } else if (_first_line.match(/ \w*sh /i)) {
+                        _syntax_template = 'shell'
+                    }
+                }
+            }
+            response_data.meta['syntax_template'] = _syntax_template || 'text'
             response_data.data.data = response_data.data.data || ''
-            response_data.meta['syntax_template'] = _syntax_highlighter_template_map[response_data.data.type.extension] || 'text'
             _b.html(
                 $('#browse_content_repoitem_tmpl').tmpl(response_data)
             )

@@ -34,7 +34,12 @@ class PathContainsRepoDirError(Exception):
 import mimetypes
 mimetypes.add_type('application/x-git-packed-objects-toc','.idx')
 mimetypes.add_type('application/x-git-packed-objects','.pack')
+# overriding the proper defaults with useful non-standard to serve the files as text
 mimetypes.add_type('text/plain','.cs')
+mimetypes.add_type('text/x-ruby','.ru')
+mimetypes.add_type('text/x-ruby','.rb')
+mimetypes.add_type('text/x-java','.java')
+mimetypes.add_type('image/png','.ico')
 
 class BaseRPCClass(object):
 
@@ -42,6 +47,8 @@ class BaseRPCClass(object):
         self.base_path = os.path.abspath(content_path)
         self.base_path_len = len(self.base_path)
         self.git_folder_signature = set(['head', 'info', 'objects', 'refs'])
+        self.text_like_files = ['js','c','cs','cpp','h','php','java',
+            'asp','aspx','perl','cgi','sql','xml']
 
     def _sanitize_path(self, relative_path):
         '''Takes a relative path and evaluates it against base path.
@@ -274,8 +281,12 @@ class PathSummaryProducer(BaseRPCClass):
                     ,'size':_size
                     }
                 )
-            if _size < 64000 and _mime.startswith('text'): # add: and mime_type is some sort of plain-text or image.
+            if _size < 64000 and (
+                _mime.startswith('text') or
+                _ext.lower() in self.text_like_files
+                ):
                 _r[1]['data'] = _t.data
+                _r[1]['type']['supermimetype'] = 'text' # thus our JavaScript UI renders application/x-* as text
             return _r
         elif type(_t) == git.Tree:
             items = []
