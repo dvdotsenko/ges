@@ -22,24 +22,10 @@ import os
 import sys
 
 import git_http_backend
-import wsgiserver
 import jsonrpc_wsgi_application as jrpc
 import ges_rpc_methods
 import fuzzy_path_handler
 import serve_index_file
-
-# we are using a custom version of subprocess.Popen - PopenIO 
-# with communicateIO() method that starts reading into mem
-# and switches to hard-drive persistence after mem threshold is crossed.
-if sys.platform == 'cli':
-    import subprocessio.subprocessio_ironpython as subprocess
-else:
-    import subprocess
-try:
-    # will fail on cPython
-    t = subprocess.PopenIO
-except:
-    import subprocessio.subprocessio as subprocess
 
 def assemble_ges_app(*args, **kw):
     '''

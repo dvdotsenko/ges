@@ -1,3 +1,4 @@
+import os.path
 import os
 import sys
 import threading
@@ -14,7 +15,9 @@ except:
     # 2.x style module
     import urllib as urlopenlib
 
-sys.path.append('../.')
+if '__file__' in dir():
+    tfpath, trash = os.path.split(__file__)
+    sys.path.append( os.path.abspath(tfpath + os.path.sep + '..') )
 
 import ges
 import wsgiserver
@@ -30,7 +33,7 @@ def set_up_server(remote_base_path):
     # setting up the server.
     server = wsgiserver.CherryPyWSGIServer(
         (ip, port),
-        git_http_backend.assemble_WSGI_git_app(remote_base_path)
+        ges.assemble_ges_app(remote_base_path)
         )
     ip = 'localhost' # the IP the socket yields is '0.0.0.0' which is not useful for testing.
     return ip, port, server
@@ -98,7 +101,7 @@ def server_runner(s):
 
 def server_and_client(base_path):
     remote_base_path = os.path.join(base_path, 'reporemote')
-    ip, port, server = set_up_server(remote_base_path)    
+    ip, port, server = set_up_server(remote_base_path)
     t = threading.Thread(None, server_runner, None, [server])
     t.daemon = True
     t.start()
@@ -132,11 +135,18 @@ def client_only(base_path, url):
 if __name__ == "__main__":
     base_path = tempfile.mkdtemp()
     print("base path is %s" % base_path)
-    if '--clientmode' in sys.argv:
+
+    if '--runclient' in sys.argv:
         url = sys.argv[-1]
         client_only(base_path, url)
-#    elif '--servermode' in sys.argv:
-#        server_only(base_path)
-#    elif '--help' in sys.argv:
-    else:
+    elif '--runserver' in sys.argv:
+        server_only(base_path)
+    elif '--help' in sys.argv:
         print('Options: "--clientmode url"')
+    else:
+        server_and_client(base_path)
+
+    try:
+        shutil.rmtree(base_path, True)
+    except:
+        pass
