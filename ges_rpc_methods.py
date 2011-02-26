@@ -137,7 +137,7 @@ class BaseRPCClass(object):
                 break
             elif not _d:
                 # it's not a folder. Likely a shortcut or a file. Either way,
-                # it's not what we need or can work with .
+                # it's not what we need or can work with.
                 # intentionally interrupting the "while" to signal that remaining
                 # section of path does not point to a real file system path.
                 _path_chain.insert(0,os.path.split(_p)[1])
@@ -493,7 +493,7 @@ class PathSummaryProducer(BaseRPCClass):
             return {
                 'type':data_type,
                 'data':data,
-                'meta':{'path':_p, 'repo_path': _repo_path}
+                'meta':{'path':_p, 'repo_path': _repo_path[len(self.base_path):].replace('\\','/')}
                 }
 
 class RepoControl(BaseRPCClass):
