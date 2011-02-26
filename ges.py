@@ -59,8 +59,7 @@ def assemble_ges_app(*args, **kw):
     default_options = [
         ['content_path','.'],
         ['static_content_path', './static'],
-        ['uri_marker',''],
-        ['devel', False]
+        ['uri_marker','']
     ]
     options = dict(default_options)
     options.update(kw)
@@ -129,7 +128,7 @@ def assemble_ges_app(*args, **kw):
         GET = fuzzy_handler,
         HEAD = fuzzy_handler)
 
-    if 'devel' in options and options['devel']:
+    if 'devel' in options or 'debug' in options:
         import wsgilog
         return wsgilog.WsgiLog(selector, tostream=True, toprint=True)
     return selector
@@ -347,7 +346,6 @@ if __name__ == "__main__":
         ['static_content_path', None],
         ['uri_marker',''],
         ['port', None],
-        ['devel', False],
         ['demo',False],
         ['remove_temp',False]
     ])
