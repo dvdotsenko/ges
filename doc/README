@@ -8,30 +8,27 @@ These are *some* of the targeted scenarios:
 	- Microsoft IIS 6,7.x (ISAPI_WSGI + cPython, NWSGI + IronPython)
 
 General notes:
-1. This project uses git submodules. If you pull this project with git, 
-please, ensure that after you do the 'git clone' you do in specific submodules too:
- git submodule init
- git submodule update
- 
-2. This project relies on a git executable to be present and visible on the path.
+1. This project relies on a git executable to be present and visible on the path.
 There is no way to tell the server the path to git executable.
 Please, ensure that running "git" in the console produces git executable output. 
 On *nix-like systems, installing git package usually exposes that by default.
-On Windows, you have choice - cygwin or MSysGit. I prefer cygwin. Either way,
+On Windows, you have choice - cygwin or MSysGit. Either way,
 make sure to add git.exe's folder to the PATH list.
+
+2. This project's code, unfortunately, is not compatible with cPython 3.x at this time.
+If you have both 2.x and 3.x branches of Python installed, you will need to make sure
+that GES is running against 2.x version. Wherever you see this:
+"Run GES by running 'ges.py'" replace that with platform-appropriate version of 
+this "Run GES by running '\path\to\python.exe ges.py'"
 
 INSALLATION:
 
-Please, pick (cd to) some folder where GES's main folder will be placed.
-Open command line console and run the following 7 commands:
+Please, pick (cd to) some folder where GES's executable and supporting resources folder will be placed.
+Open command line console and run the following command:
 
 git clone git://gitorious.org/ges/ges.git
-cd ges
-git submodule init
-git submodule update
-cd git_http_backend
-git submodule init
-git submodule update
+or 
+git clone git://github.com/dvdotsenko/ges.git
 
 RUN:
 
