@@ -366,11 +366,14 @@ class PathSummaryProducer(BaseRPCClass):
             self._repo_endpoints_helper(_commit_data, _e.commit)
             _commit_data['branches'].append(_e.name)
 
-        _e = _r.commit('HEAD')
-        _commit_data = _commits[_e.id]
-        if not _commit_data['id']:
-            self._repo_endpoints_helper(_commit_data, _e)
-            _commit_data['branches'].append('HEAD')
+        # on occasion there is a mismatch between HEAD and a branch.
+        # if so, we will show it separately. Else, a branch absorbs it.
+        if _r.heads: # bare, freshly inited repos don't have heads and code blows up.
+            _e = _r.commit('HEAD')
+            _commit_data = _commits[_e.id]
+            if not _commit_data['id']:
+                self._repo_endpoints_helper(_commit_data, _e)
+                _commit_data['branches'].append('HEAD')
 
         _commits_list = [_commits[key] for key in _commits.keys()]
         _commits_list.sort(cmp=lambda a,b: cmp(a['time'],b['time']), reverse=True)
