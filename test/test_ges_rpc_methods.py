@@ -21,8 +21,9 @@ import os.path
 import os
 import sys
 
-execpath = os.getcwd()
-sys.path.append('..')
+if '__file__' in dir():
+    tfpath, trash = os.path.split(__file__)
+    sys.path.append( os.path.abspath(tfpath + os.path.sep + '..') )
 
 import unittest
 import ges_rpc_methods as grm
@@ -40,6 +41,49 @@ class test_GesRPCMethods(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.base_path, True)
+
+    def test_00_repo_is_root_bare(self):
+        _base_path = os.path.join(self.base_path,"projects","demorepoone")
+        _rpc_tree = dict(grm.assemble_methods_list(_base_path))
+        _m = _rpc_tree['browser.path_summary']
+
+        r1 = _m('')
+        r2 = _m('/')
+        r3 = _m('\\')
+        self.assertEquals(
+            r1,
+            r2
+        )
+        self.assertEquals(
+            r2,
+            r3
+        )
+        self.assertEquals(
+            r1,
+            {'data': {'endpoints': [{'branches': ['master'], 'author': 'D.Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Adding submodule for testing.', 'time': 'Sun Oct 31 05:15:14 2010 UTC', 'auth_time': 'Sat Oct 30 08:20:33 2010 UTC', 'id': '3408e8f7720eff4a1fd16e9bf654332036c39bf8'}, {'branches': ['experimental'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Starting evern more radical feature.', 'time': 'Mon Oct 18 01:22:24 2010 UTC', 'auth_time': 'Mon Oct 18 01:22:24 2010 UTC', 'id': '885f5a29f0bede312686c9cabcef1dcd9c418fb4'}, {'branches': ['stable'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.2'], 'summary': 'Adding new feature.', 'time': 'Mon Oct 18 01:18:55 2010 UTC', 'auth_time': 'Mon Oct 18 01:18:55 2010 UTC', 'id': '263e545b2227821bd7254bfb60fb11dae3aa9d0b'}, {'branches': [], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.1'], 'summary': 'Changed firstdoc.txt', 'time': 'Mon Oct 18 01:17:21 2010 UTC', 'auth_time': 'Mon Oct 18 01:17:21 2010 UTC', 'id': '457c6388d3d6f2608038a543e272e7fc1dfc2082'}], 'description': "Unnamed repository; edit this file 'description' to name the repository."}, 'meta': {'path': '', 'repo_path': '/'}, 'type': 'repo'}
+        )
+
+    def test_00_repo_is_root_working(self):
+        _base_path = os.path.join(self.base_path,"users","joe","copy_demorepoone",".git")
+        _rpc_tree = dict(grm.assemble_methods_list(_base_path))
+        _m = _rpc_tree['browser.path_summary']
+
+        r1 = _m('')
+        r2 = _m('/')
+        r3 = _m('\\')
+
+        self.assertEquals(
+            r1,
+            r2
+        )
+        self.assertEquals(
+            r2,
+            r3
+        )
+        self.assertEquals(
+            r1,
+            {'data': {'endpoints': [{'branches': ['master'], 'author': 'D.Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Adding submodule for testing.', 'time': 'Sun Oct 31 05:15:14 2010 UTC', 'auth_time': 'Sat Oct 30 08:20:33 2010 UTC', 'id': '3408e8f7720eff4a1fd16e9bf654332036c39bf8'}, {'branches': ['experimental'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Starting evern more radical feature.', 'time': 'Mon Oct 18 01:22:24 2010 UTC', 'auth_time': 'Mon Oct 18 01:22:24 2010 UTC', 'id': '885f5a29f0bede312686c9cabcef1dcd9c418fb4'}, {'branches': ['stable'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.2'], 'summary': 'Adding new feature.', 'time': 'Mon Oct 18 01:18:55 2010 UTC', 'auth_time': 'Mon Oct 18 01:18:55 2010 UTC', 'id': '263e545b2227821bd7254bfb60fb11dae3aa9d0b'}, {'branches': [], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.1'], 'summary': 'Changed firstdoc.txt', 'time': 'Mon Oct 18 01:17:21 2010 UTC', 'auth_time': 'Mon Oct 18 01:17:21 2010 UTC', 'id': '457c6388d3d6f2608038a543e272e7fc1dfc2082'}], 'description': "Unnamed repository; edit this file 'description' to name the repository."}, 'meta': {'path': '', 'repo_path': '/'}, 'type': 'repo'}
+        )
 
     def test_01_browser_methods(self):
         _m = self._rpc_tree['browser.path_summary']
@@ -104,22 +148,23 @@ class test_GesRPCMethods(unittest.TestCase):
 #            {'data': {'endpoints': [
 #                {'branches': ['master'], 'author': 'D.Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Adding submodule for testing.', 'time': 'Sun Oct 31 05:15:14 2010 UTC', 'auth_time': 'SatOct 30 08:20:33 2010 UTC', 'id': '3408e8f7720eff4a1fd16e9bf654332036c39bf8'}, {'branches': ['experimental'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': [], 'summary': 'Starting evern more radical feature.', 'time': 'Mon Oct 18 01:22:24 2010 UTC', 'auth_time': 'Mon Oct 18 01:22:24 2010 UTC', 'id': '885f5a29f0bede312686c9cabcef1dcd9c418fb4'}, {'branches': ['stable'], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.2'], 'summary': 'Adding new feature.', 'time': 'Mon Oct 18 01:18:55 2010 UTC', 'auth_time': 'Mon Oct 18 01:18:55 2010 UTC', 'id': '263e545b2227821bd7254bfb60fb11dae3aa9d0b'}, {'branches': [], 'author': 'D. Dotsenko', 'author_email': 'dotsa@hotmail.com', 'tags': ['0.1'], 'summary': 'Changed firstdoc.txt', 'time': 'Mon Oct 18 01:17:21 2010 UTC', 'auth_time': 'Mon Oct 18 01:17:21 2010 UTC', 'id': '457c6388d3d6f2608038a543e272e7fc1dfc2082'}], 'description': "Unnamed repository; edit this file 'description' to name the repository."}, 'meta': {'path': u'projects/demorepoone'}, 'type': 'repo'}
 #        )
-        self.assertEquals(
-            # test submodule here.
-            True,
-            {
-             'type':'remotelink'
-            ,'data':{
-                'type': {
-                    'system': 'git',
-                    'class': 'submodule'
-                    }
-                ,'name':'mysubmodule'
-                ,'url':'http://example.com/folder/repofolder'
-                ,'id':'1243124312431243143'
-                }
-            }
-        )
+
+#        self.assertEquals(
+#            # test submodule here.
+#            True,
+#            {
+#             'type':'remotelink'
+#            ,'data':{
+#                'type': {
+#                    'system': 'git',
+#                    'class': 'submodule'
+#                    }
+#                ,'name':'mysubmodule'
+#                ,'url':'http://example.com/folder/repofolder'
+#                ,'id':'1243124312431243143'
+#                }
+#            }
+#        )
         self.assertEquals(
             _m('projects/demorepoone/master'),
             {'data': [
@@ -131,7 +176,10 @@ class test_GesRPCMethods(unittest.TestCase):
                ,{'type': 'file', 'name': '.gitignore', 'size': 300}
                ,{'type': 'folder', 'name': 'somefolder'}
                ]
-            ,'meta': {'path': u'projects/demorepoone/master'}
+            ,'meta': {
+                'path': u'projects/demorepoone/master',
+                'repo_path': u'/projects/demorepoone'
+                }
             ,'type': 'repofolder'}
         )
         self.assertEquals(
@@ -142,7 +190,10 @@ class test_GesRPCMethods(unittest.TestCase):
                  , 'type': 'submodule'
                  , 'name': 'nestedmodule'}
             ]
-            , 'meta': {'path': u'projects/demorepoone/master/somefolder'}
+            , 'meta': {
+                'path': u'projects/demorepoone/master/somefolder',
+                'repo_path': u'/projects/demorepoone'
+                }
             , 'type': 'repofolder'}
         )
         self.assertEquals(
@@ -154,7 +205,8 @@ class test_GesRPCMethods(unittest.TestCase):
                 , 'size': 65
                 }
             ,'meta': {
-                'path': u'projects/demorepoone/master/firstdoc.txt'
+                'path': u'projects/demorepoone/master/firstdoc.txt',
+                'repo_path': u'/projects/demorepoone'
                 }
             , 'type': 'repoitem'}
         )
