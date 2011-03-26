@@ -388,7 +388,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 )
             )
             make_editable(
-                $('pre'),
+                $('pre', _b),
                 function (new_text){
                     $.JSONRPC.call(
                         '/rpc/'
