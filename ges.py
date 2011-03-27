@@ -63,6 +63,8 @@ def assemble_ges_app(*args, **kw):
     ]
     options = dict(default_options)
     options.update(kw)
+
+    # this unfolds args into options in order of default_options
     args = list(args) # need this to allow .pop method on it.
     while default_options and args:
         _d = default_options.pop(0)
@@ -96,22 +98,22 @@ def assemble_ges_app(*args, **kw):
     fuzzy_handler = fuzzy_path_handler.FuzzyPathHandler(**options)
 
     if options['uri_marker']:
-        marker_regex = r'(?P<decorative_path>.*?)(?:/'+ options['uri_marker'] + ')'
+        marker_regex = r'(?P<decorative_path>.*?)(?:/'+ options['uri_marker'] + ')/'
     else:
-        marker_regex = ''
+        marker_regex = r'[/]*'
     selector = git_http_backend.WSGIHandlerSelector()
     selector.add(
-        marker_regex + r'/$',
+        marker_regex + r'$',
         _serve_index_file)
     selector.add(
-        marker_regex + r'/rpc[/]*$',
+        marker_regex + r'rpc[/]*$',
         _jsonrpc_app)
     selector.add(
-        marker_regex + r'/favicon.ico$',
+        marker_regex + r'favicon.ico$',
         GET = _static_server_app,
         HEAD = _static_server_app)
     selector.add(
-        marker_regex + r'/static/(?P<working_path>.*)$',
+        marker_regex + r'static/(?P<working_path>.*)$',
         GET = _static_server_app,
         HEAD = _static_server_app)
     selector.add(

@@ -391,7 +391,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 $('pre', _b),
                 function (new_text){
                     $.JSONRPC.call(
-                        '/rpc/'
+                        './rpc/'
                         ,'repocontrol.setdescription'
                         ,[response_data.meta.path, new_text]
                     )
@@ -507,7 +507,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
         } else {
             content_jqobj.html("Loading...")
             $.JSONRPC.call(
-                '/rpc/'
+                './rpc/'
                 ,'browser.path_summary'
                 ,[_p]
                 ,successfn
