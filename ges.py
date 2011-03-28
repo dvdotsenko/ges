@@ -103,7 +103,7 @@ def assemble_ges_app(*args, **kw):
         marker_regex = r''
     selector = git_http_backend.WSGIHandlerSelector()
     selector.add(
-        marker_regex + r'/$',
+        (marker_regex or '/') + '$',
         _serve_index_file)
     selector.add(
         marker_regex + r'/rpc[/]*$',
