@@ -531,83 +531,33 @@ class GitHTTPBackendSmartHTTP(GitHTTPBackendBase):
         git_command = dataObj['git_command']
         repo_path = dataObj['repo_path']
 
-        try:
-            _l = int(environ.get('CONTENT_LENGTH',''))
-        except:
-            _l = None
-
         # Note, depending on the WSGI server, the following handlings of chunked
         # request bodies are possible:
-        # 1. This is WSGI 1.0-only compliant server. wsgi.input.read() is bottomless
+        # 1. This is PEP 333-only compliant server. wsgi.input.read() is bottomless
         #    and Content-Length is absent.
         #    If WSGI app is assuming no size header = size header is Zero, app will respond with wrong data.
         #    (this code is not assuming None = zero data. We look deeper)
         #    If WSGI app is chunked-aware, but respects WSGI 1.0 only,
         #    it will reply with "501 Not Implemented"
-        # 2. This is WSGI 1.0-compliant server that tries to accommodate Transfer-Encoding: chunked
+        # 2. This is PEP333-compliant server that tries to accommodate Transfer-Encoding: chunked
         #    requests by caching the body and presenting it as wsgi.input file-like.
         #    Content-Length header is set to captured size and Transfer-Encoding
         #    header is removed. This is not per WSGI 1.0 spec, but is a good thing to do.
         #    All WSGI 1.x apps are happy.
-        # 3. This is WSGI 1.1-compliant server that presents Transfer-Encoding: chunked
+        # 3. This is PEP3333-compliant server that presents Transfer-Encoding: chunked
         #    requests as a file-like that yields an EOF at the end.
         #    Content-Length header is NOT set.
-        #    Only WSGI 1.1 apps are happy. WSGI 1.0 apps are confused by lack of
-        #    content-length header and blow up. (We are WSGI 1.1 app)
+        #    Only PEP3333-aware apps are happy. WSGI 1.0 apps are confused by lack of
+        #    content-length header and blow up. (We are WSGI 1.0.1 app)
 
-        # any WSGI server that claims to be HTTP/1.1 compliant must deal with chunked
-        # If not #3 above, then #2 would be done by a self-respecting HTTP/1.1 server.
-
-        wsgi_version = environ.get('wsgi.version',(1,0))
-        if wsgi_version[0] >= 1 and wsgi_version[1] >= 1: # if it's 1.1 or higher.
-            wsgi_input_has_EOF = True
-        else:
-            wsgi_input_has_EOF = False
-            if _l is None or _l < 0: # signs of transfer-encoding: chunked
-                # So, no usable Content-Length value and the server is not WSGI 1.1 and above?
-                # Normal thought process:
-                # Is the server WSGI 1.1-compliant?
-                #  (I.e HTTP/1.1 + Chunked support + wsgi.input will send EOF
-                #   at the end and we don't have to think about Content-Length)
-                #  Yes - we forget about _l and just read from wsgi.input until EOF
-                #  No - We check if "Transfer-Encoding" header is set.
-                #       Yes, we send back 501 Not Implemented.
-                #       No, What error code? TBD. No point sending zero data as a pack to git.
-                # Note: There is another, tricky possibility:
-                #  The server is not advertized to be WSGI 1.1 compliant, but is advertized
-                #  to be HTTP/1.1 compliant, which would assume that it deals with chunked
-                #  body, and LIKELY caches it into a local file-like that will LIKELY emit EOF
-                #  However, in accordance with WSGI 1.0, the server would not set Content-Length.
-                #  This is dumb. How would we know it's safe to .read() wsgi.input to EOF?
-                #  If we assume HTTP/1.1 = "chunked body exposed
-                #  as wsgi.input that has EOF" and turn out to be wrong,
-                #  we will be trying to read from the wsgi.input indefinitely.
-                #  Ugh! I don't want to be guessing based on SERVER_PROTOCOL = HTTP/1.1 header.
-                #  Thus, only servers officially proclaiming WSGI v. > 1.0 compliance are
-                #  safely supported for Content-Length-less request reading.
-                return self.canned_handlers(environ, start_response, 'not_implemented')
-
-        _i = environ.get('wsgi.input')
-        if wsgi_input_has_EOF: # this is approximately equal "if server is WSGI 1.1 and above"
-            stdin = _i
-        else:
-            if _l > self.bufsize: # too large to be a string in memory
-                bs = self.bufsize
-                btr = _l
-                stdin = tempfile.TemporaryFile()
-                while btr >= bs:
-                    stdin.write(_i.read(bs))
-                    btr -= bs
-                stdin.write(_i.read(btr))
-                stdin.flush()
-                stdin.seek(0)
-            else: # between zero and max memory buffer size = string or bytes
-                stdin = _i.read(_l)
-
+        # in their infinite withdom, the authors of PEP 3333 decided to keep the wsgi.version = (1.0) for PEP3333,
+        # thus making it impossible for a WSGI app to fiture out if this is PEP333 or PEP3333
+        # what a screw up... oh well. We'll instruct the users to chose PEP 3333 compliant servers in docs.
+        # only PEP3333 behavior is supported.
         try:
             out = subprocessio.SubprocessIOChunker(
                 r'git %s --stateless-rpc "%s"' % (git_command[4:], repo_path),
-                inputstream = stdin
+                inputstream = environ.get('wsgi.input')
                 )
         except (EnvironmentError) as e:
             environ['wsgi.errors'].write(str(e))
