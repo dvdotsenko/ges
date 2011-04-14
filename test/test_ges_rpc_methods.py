@@ -220,9 +220,10 @@ class test_GesRPCMethods(unittest.TestCase):
         # we should forbid seeing contents of folders above base path.
         self.assertRaises(grm.PathUnfitError, _m, 'projects/../../../blah')
 
-if __name__ == "__main__":
-    unittest.TextTestRunner(verbosity=2).run(
-        unittest.TestSuite([
+def suite():
+    return  unittest.TestSuite([
             unittest.TestLoader().loadTestsFromTestCase(test_GesRPCMethods),
         ])
-    )
+        
+if __name__ == "__main__":
+    unittest.TextTestRunner(verbosity=2).run( suite() )
