@@ -28,6 +28,8 @@ along with git_http_backend.py Project.  If not, see <http://www.gnu.org/license
 import io
 import os
 import sys
+import gzip
+import StringIO
 
 import subprocess
 import subprocessio
@@ -533,7 +535,7 @@ class GitHTTPBackendSmartHTTP(GitHTTPBackendBase):
 
         # Note, depending on the WSGI server, the following handlings of chunked
         # request bodies are possible:
-        # 1. This is PEP 333-only compliant server. wsgi.input.read() is bottomless
+        # 1. This is strict PEP333-only compliant server. wsgi.input.read() is bottomless
         #    and Content-Length is absent.
         #    If WSGI app is assuming no size header = size header is Zero, app will respond with wrong data.
         #    (this code is not assuming None = zero data. We look deeper)
@@ -544,24 +546,48 @@ class GitHTTPBackendSmartHTTP(GitHTTPBackendBase):
         #    Content-Length header is set to captured size and Transfer-Encoding
         #    header is removed. This is not per WSGI 1.0 spec, but is a good thing to do.
         #    All WSGI 1.x apps are happy.
-        # 3. This is PEP3333-compliant server that presents Transfer-Encoding: chunked
+        # 3. This is PEP3333 compliant server that presents Transfer-Encoding: chunked
         #    requests as a file-like that yields an EOF at the end.
         #    Content-Length header is NOT set.
-        #    Only PEP3333-aware apps are happy. WSGI 1.0 apps are confused by lack of
-        #    content-length header and blow up. (We are WSGI 1.0.1 app)
+        #    Only WSGI 1.1 apps are happy. WSGI 1.0 apps are confused by lack of
+        #    content-length header and blow up. (We are WSGI 1.1 app)
 
-        # in their infinite withdom, the authors of PEP 3333 decided to keep the wsgi.version = (1.0) for PEP3333,
-        # thus making it impossible for a WSGI app to fiture out if this is PEP333 or PEP3333
-        # what a screw up... oh well. We'll instruct the users to chose PEP 3333 compliant servers in docs.
-        # only PEP3333 behavior is supported.
+        # any WSGI server that claims to be HTTP/1.1 compliant must deal with chunked
+        # If not #3 above, then #2 would be done by a self-respecting HTTP/1.1 server.
+        
+        # everywhere lower, we just assume we deal with PEP3333-compliant server.
+        # there wsgi.input generated EOF, so we don't have to care about content length.
+
+        stdin = environ.get('wsgi.input')
+
         try:
+            # Git's curl client can on occasion be instructed to gzip the contents,
+            # when they are not naturally gzipped by git stream generator.
+            # in that case, CGI vars will have HTTP_ACCEPT_ENCODING set to 'gzip' (or 'x-gzip')
+            # This usually happens when git client asks for "clone" or "fetch" by giving a list
+            # of hashes to send to it. That list is binary text and Git's HTTP client code compresses it by hand.
+            # If our server did not transparently decode the body yet (and removed the HTTP_ACCEPT_ENCODING)
+            # we will do it manually:
+            if environ.get('HTTP_CONTENT_ENCODING','') in ['gzip', 'x-gzip']:
+                # since we have decoded it, it's no longer true.
+                # del environ['HTTP_CONTENT_ENCODING']
+                tmpfile = StringIO.StringIO(stdin.read())
+                stdin = gzip.GzipFile(fileobj = tmpfile).read()
+                tmpfile.close()
+                del tmpfile
+                # environ['wsgi.errors'].write('stdin is "%s"\n' % stdin)
+                # environ['CONTENT_LENGTH'] = str(len(stdin))
+
             out = subprocessio.SubprocessIOChunker(
                 r'git %s --stateless-rpc "%s"' % (git_command[4:], repo_path),
-                inputstream = environ.get('wsgi.input')
+                inputstream = stdin
                 )
         except (EnvironmentError) as e:
             environ['wsgi.errors'].write(str(e))
             return self.canned_handlers(environ, start_response, 'execution_failed')
+        except (Exception) as e:
+            environ['wsgi.errors'].write(str(e))
+            raise e
 
         if git_command == u'git-receive-pack':
             # updating refs manually after each push. Needed for pre-1.7.0.4 git clients using regular HTTP mode.
