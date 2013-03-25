@@ -418,7 +418,7 @@ along with Git Enablement Server Project.  If not, see <http://www.gnu.org/licen
                 $('#browse_content_remotelink_tmpl').tmpl(
                     response_data,
                     {
-                        'get_full_application_uri':get_full_application_uri,
+                        'get_full_application_uri':get_full_application_uri
                     }
                 )
             )
